@@ -7,7 +7,7 @@ class OnBulkMessageDelete(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_raw_bulk_message_delete(self, guild: discord.Guild, user: discord.User):
+    async def on_raw_bulk_message_delete(self, guild: discord.Guild, user: discord.User = None):
         guild_id = guild.id
         if guild_id not in self.bot.guild_settings:
             return
