@@ -79,6 +79,7 @@ class MessageLog(commands.Cog):
 
             if moderator is None:
                 async for entry in message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_bulk_delete):
+                    print(entry.target)
                     if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
                         moderator = entry.user
                         break
