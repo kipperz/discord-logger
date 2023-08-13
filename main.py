@@ -75,12 +75,13 @@ class LoggingHandler(logging.Handler):
 
     async def send_log(self, record):
         log_entry = self.format(record)
-        if config.settings.DEV_CHANNEL:
-            channel = self.bot.get_channel(config.settings.DEV_CHANNEL)
-            if channel is None:
-                pass
-            else:
-                await channel.send(f'```prolog\n{log_entry[:1999]}```')
+        if 'We are being rate limited' not in str(record):
+            if config.settings.DEV_CHANNEL:
+                channel = self.bot.get_channel(config.settings.DEV_CHANNEL)
+                if channel is None:
+                    pass
+                else:
+                    await channel.send(f'```prolog\n{log_entry[:1800]}```')
 
     def emit(self, record):
         asyncio.ensure_future(self.send_log(record))
