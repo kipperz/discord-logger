@@ -72,8 +72,13 @@ class MessageLog(commands.Cog):
         moderator = None
         after = datetime.now(timezone.utc) - timedelta(seconds=10)
         if message.author is not None:
-            async for entry in message.guild.audit_logs(after=after):
-                if entry.action in (discord.AuditLogAction.message_delete, discord.AuditLogAction.message_bulk_delete)
+            async for entry in message.guild.audit_logs(after=after, action=discord.AuditLogAction.message_delete):
+                if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
+                    moderator = entry.user
+                    break
+
+            if moderator is None:
+                async for entry in message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_delete):
                     if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
                         moderator = entry.user
                         break
