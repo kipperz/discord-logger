@@ -11,13 +11,15 @@ class MemberActions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
+        print(after.name)
+        print(after)
         for guild in after.mutual_guilds:
             guild_id = guild.id
             if guild_id not in self.bot.guild_settings:
                 return
 
-            if before._user != after._user: #pylint: disable=protected-access
-                message = f'from **{escape_markdown(before._user)}** to **{escape_markdown(after._user)}**' #pylint: disable=protected-access
+            if str(before) != str(after): #pylint: disable=protected-access
+                message = f'from **{escape_markdown(str(before))}** to **{escape_markdown(str(after))}**' #pylint: disable=protected-access
                 await functions.log_event(
                     bot = self.bot,
                     log_type = self.bot.guild_settings[guild_id]['username'],
