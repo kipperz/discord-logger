@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 import discord
 from discord.ext import commands
+from discord.utils import escape_markdown
 from pymongo import DESCENDING
 
 from config import settings
@@ -72,7 +73,7 @@ class MessageLog(commands.Cog):
                     moderator = entry.user
 
         if message.author is not None:
-            fields = [['User', f'{message.author.mention}\n{message.author}', True]]
+            fields = [['User', f'{message.author.mention}\n{escape_markdown(message.author)}', True]]
         else:
             fields = [['User', 'unlogged message', True]]
         fields.append(['Channel', f'{message.channel.mention}\n{message.channel.name}', True])
@@ -124,7 +125,7 @@ class MessageLog(commands.Cog):
             before = payload.cached_message.content
 
         fields= [
-            ['User', f'{message.author.mention}\n{message.author}', True],
+            ['User', f'{message.author.mention}\n{escape_markdown(message.author)}', True],
             ['Channel', f'{message.channel.mention}\n{message.channel.name}', True],
             ['Created At', f'<t:{int(message.created_at.timestamp())}:d>\n<t:{int(message.created_at.timestamp())}:t>', True],
             ['Original Message', before[:1024], False],
