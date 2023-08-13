@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import discord
 from discord.ext import commands
@@ -21,6 +21,9 @@ class MessageLog(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if message.author is self.bot.user:
+            return
+
+        if message.guild is None:
             return
 
         guild_id = message.guild.id
@@ -67,13 +70,13 @@ class MessageLog(commands.Cog):
                 return
 
         moderator = None
+        after = datetime.now(timezone.utc) - timedelta(seconds=10)
         if message.author is not None:
-            # async for entry in message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_delete):
-            async for entry in message.guild.audit_logs(limit=20):
-                print(entry.action)
-                if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
-                    moderator = entry.user
-                    break
+            async for entry in message.guild.audit_logs(after=after):
+                if entry.action in (discord.AuditLogAction.message_delete, discord.AuditLogAction.message_bulk_delete)
+                    if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
+                        moderator = entry.user
+                        break
 
         if message.author is not None:
             fields = [['User', f'{message.author.mention}\n{escape_markdown(str(message.author._user))}', True]] #pylint: disable=protected-access
