@@ -11,8 +11,6 @@ class MemberActions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
-        print(after.name)
-        print(after)
         for guild in after.mutual_guilds:
             guild_id = guild.id
             if guild_id not in self.bot.guild_settings:
