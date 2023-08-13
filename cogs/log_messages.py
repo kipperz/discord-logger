@@ -73,7 +73,7 @@ class MessageLog(commands.Cog):
                     moderator = entry.user
 
         if message.author is not None:
-            fields = [['User', f'{message.author.mention}\n{escape_markdown(message.author._user)}', True]] #pylint: disable=protected-access
+            fields = [['User', f'{message.author.mention}\n{escape_markdown(str(message.author._user))}', True]] #pylint: disable=protected-access
         else:
             fields = [['User', 'unlogged message', True]]
         fields.append(['Channel', f'{message.channel.mention}\n{message.channel.name}', True])
@@ -125,7 +125,7 @@ class MessageLog(commands.Cog):
             before = payload.cached_message.content
 
         fields= [
-            ['User', f'{message.author.mention}\n{escape_markdown(message.author._user)}', True], #pylint: disable=protected-access
+            ['User', f'{message.author.mention}\n{escape_markdown(str(message.author._user))}', True], #pylint: disable=protected-access
             ['Channel', f'{message.channel.mention}\n{message.channel.name}', True],
             ['Created At', f'<t:{int(message.created_at.timestamp())}:d>\n<t:{int(message.created_at.timestamp())}:t>', True],
             ['Original Message', before[:1024], False],
