@@ -30,7 +30,7 @@ class MemberActions(commands.Cog):
         guild_id = after.guild.id
         if guild_id not in self.bot.guild_settings:
             return
-        
+
         if before.nick != after.nick:
             if before.nick is None and after.nick is not None:
                 message = f'set nick to **{escape_markdown(after.nick)}**'
