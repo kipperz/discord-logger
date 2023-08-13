@@ -27,7 +27,7 @@ class VoiceLog(commands.Cog):
                 bot = self.bot,
                 log_type = self.bot.guild_settings[guild_id]['voice'],
                 user = member,
-                message = f'left {after.channel.mention}'
+                message = f'disconnected from {before.channel.mention}'
             )
 
         elif before.channel is not None and after.channel is not None:
