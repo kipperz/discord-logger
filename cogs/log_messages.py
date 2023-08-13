@@ -68,9 +68,11 @@ class MessageLog(commands.Cog):
 
         moderator = None
         if message.author is not None:
-            async for entry in message.guild.audit_logs(limit=5, action=discord.AuditLogAction.message_delete):
+            async for entry in message.guild.audit_logs(limit=15, action=discord.AuditLogAction.message_delete):
                 if entry.target.id == message.author.id and entry.extra.channel.id == message.channel.id:
+                    print(entry.target)
                     moderator = entry.user
+                    break
 
         if message.author is not None:
             fields = [['User', f'{message.author.mention}\n{escape_markdown(str(message.author._user))}', True]] #pylint: disable=protected-access
