@@ -1,151 +1,151 @@
 {
-    "962116220767862815": {
-        "join": {
-            "enabled": true,
-            "label": "join",
-            "channel_id": "1139327710343204984",
-            "message_format": "simple",
-            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327340871164065/arrow_join.png"
-        },
-        "rejoin": {
-            "enabled": true,
-            "label": "rejoin",
-            "channel_id": "1139327710343204984",
-            "message_format": "simple",
-            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327340871164065/arrow_join.png"
-        },
-        "part": {
-            "enabled": true,
-            "label": "part",
-            "channel_id": "1139327710343204984",
-            "message_format": "simple",
-            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327341148000296/arrow_leave.png"
-        },
+    "guild_id": {
         "audit": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "audit log",
-            "channel_id": "1139070096636121098",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
         },
         "ban": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "banned",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
         },
         "delete": {
+            "channel_id": "",
             "enabled": true,
-            "label": null,
-            "channel_id": "1139817685832699905",
-            "message_format": "text",
-            "icon": null
+            "icon_url": null,
+            "label": "delete",
+            "message_format": "text"
         },
         "edit": {
+            "channel_id": "",
             "enabled": true,
-            "label": null,
-            "channel_id": "1139817685832699905",
-            "message_format": "text",
-            "icon": null
+            "icon_url": null,
+            "label": "edit",
+            "message_format": "text"
+        },
+        "join": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "join",
+            "message_format": "simple"
         },
         "kick": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "kick",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
-        },
-        "nick": {
-            "enabled": true,
-            "label": "nick",
-            "channel_id": "1138601380374904964",
-            "message_format": "simple",
-            "icon": null
-        },
-        "onboarding": {
-            "enabled": true,
-            "label": "onboarding",
-            "channel_id": "1138601380374904964",
-            "message_format": "simple",
-            "icon": null
-        },
-        "pending": {
-            "enabled": true,
-            "label": "pending",
-            "channel_id": "1138601380374904964",
-            "message_format": "simple",
-            "icon": null
-        },
-        "role": {
-            "enabled": true,
-            "label": "role",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
-        },
-        "timeout": {
-            "enabled": true,
-            "label": "timeout",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
-        },
-        "username": {
-            "enabled": true,
-            "label": "username",
-            "channel_id": "1138601380374904964",
-            "message_format": "simple",
-            "icon": null
-        },
-        "voice": {
-            "enabled": true,
-            "label": "voice",
-            "channel_id": "1138601380374904964",
-            "message_format": "simple",
-            "icon": null
-        },
-        "moderator_nick": {
-            "enabled": true,
-            "label": "nick",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
         },
         "moderator_delete": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "delete",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
-        },
-        "moderator_move": {
-            "enabled": true,
-            "label": "move",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
         },
         "moderator_disconnect": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "disconnect",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
+        },
+        "moderator_move": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "move",
+            "message_format": "simple"
+        },
+        "moderator_nick": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "nick",
+            "message_format": "simple"
         },
         "moderator_role": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "role",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
+        },
+        "nick": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "nick",
+            "message_format": "simple"
+        },
+        "onboarding": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "onboarding",
+            "message_format": "simple"
+        },
+        "part": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "part",
+            "message_format": "simple"
+        },
+        "pending": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "pending",
+            "message_format": "simple"
         },
         "pin": {
+            "channel_id": "",
             "enabled": true,
+            "icon_url": null,
             "label": "pin",
-            "channel_id": "1139080828098457650",
-            "message_format": "simple",
-            "icon": null
+            "message_format": "simple"
+        },
+        "rejoin": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "rejoin",
+            "message_format": "simple"
+        },
+        "role": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "role",
+            "message_format": "simple"
+        },
+        "timeout": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "timeout",
+            "message_format": "simple"
+        },
+        "username": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "username",
+            "message_format": "simple"
+        },
+        "voice": {
+            "channel_id": "",
+            "enabled": true,
+            "icon_url": null,
+            "label": "voice",
+            "message_format": "simple"
         }
     }
 }
