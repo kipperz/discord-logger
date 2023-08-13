@@ -77,7 +77,11 @@ def extended_embed( # WIP - do not use
     footer: str or None,
     moderator: str or None
 ):
-    description = f'**User:** {user.mention} `{user._user}`' #pylint: disable=protected-access
+    if isinstance(user, discord.Member):
+        username = user._user #pylint: disable=protected-access
+    else:
+        username = str(user)
+    description = f'**User:** {user.mention} `{username}`'
     if message is not None:
         description = f'{description}\n{message}'
     if moderator is not None:
@@ -97,7 +101,12 @@ def simple_embed(
     footer: str or None,
     moderator: str or None
 ):
-    log = f'`{log_type["label"].upper()}` {user.mention} `{user._user}`' #pylint: disable=protected-access
+    if isinstance(user, discord.Member):
+        username = user._user #pylint: disable=protected-access
+    else:
+        username = str(user)
+
+    log = f'`{log_type["label"].upper()}` {user.mention} `{username}`'
     if message is not None:
         log = f'{log} | {message}'
 
@@ -117,7 +126,11 @@ def text_log(
     footer: str or None,
     moderator: str or None
 ):
-    log = f'`{log_type["label"].upper()}` {user.mention} `{user._user}`' #pylint: disable=protected-access
+    if isinstance(user, discord.Member):
+        username = user._user #pylint: disable=protected-access
+    else:
+        username = str(user)
+    log = f'`{log_type["label"].upper()}` {user.mention} `{username}`'
     if message is not None:
         log = f'{log} | {message}'
 
