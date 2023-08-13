@@ -11,20 +11,27 @@ class MemberActions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
+        for guild in after.mutual_guilds:
+            guild_id = guild.id
+            if guild_id not in self.bot.guild_settings:
+                return
+
+            if before._user != after._user: #pylint: disable=protected-access
+                message = f'from **{escape_markdown(before._user)}** to **{escape_markdown(after._user)}**' #pylint: disable=protected-access
+                await functions.log_event(
+                    bot = self.bot,
+                    log_type = self.bot.guild_settings[guild_id]['username'],
+                    user = after,
+                    message = message,
+                )
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
         guild_id = after.guild.id
         if guild_id not in self.bot.guild_settings:
             return
-
-        if before._user != after._user: #pylint: disable=protected-access
-            message = f'from **{escape_markdown(before._user)}** to **{escape_markdown(after._user)}**' #pylint: disable=protected-access
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['username'],
-                user = after,
-                message = message,
-            )
-
-        elif before.nick != after.nick:
+        
+        if before.nick != after.nick:
             if before.nick is None and after.nick is not None:
                 message = f'set nick to **{escape_markdown(after.nick)}**'
             if before.nick is not None and after.nick is None:
