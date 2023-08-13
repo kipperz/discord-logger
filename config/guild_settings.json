@@ -1,0 +1,151 @@
+{
+    "962116220767862815": {
+        "join": {
+            "enabled": true,
+            "label": "join",
+            "channel_id": "1139327710343204984",
+            "message_format": "simple",
+            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327340871164065/arrow_join.png"
+        },
+        "rejoin": {
+            "enabled": true,
+            "label": "rejoin",
+            "channel_id": "1139327710343204984",
+            "message_format": "simple",
+            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327340871164065/arrow_join.png"
+        },
+        "part": {
+            "enabled": true,
+            "label": "part",
+            "channel_id": "1139327710343204984",
+            "message_format": "simple",
+            "icon": "https://cdn.discordapp.com/attachments/1139327297955037224/1139327341148000296/arrow_leave.png"
+        },
+        "audit": {
+            "enabled": true,
+            "label": "audit log",
+            "channel_id": "1139070096636121098",
+            "message_format": "simple",
+            "icon": null
+        },
+        "ban": {
+            "enabled": true,
+            "label": "banned",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "delete": {
+            "enabled": true,
+            "label": null,
+            "channel_id": "1139817685832699905",
+            "message_format": "text",
+            "icon": null
+        },
+        "edit": {
+            "enabled": true,
+            "label": null,
+            "channel_id": "1139817685832699905",
+            "message_format": "text",
+            "icon": null
+        },
+        "kick": {
+            "enabled": true,
+            "label": "kick",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "nick": {
+            "enabled": true,
+            "label": "nick",
+            "channel_id": "1138601380374904964",
+            "message_format": "simple",
+            "icon": null
+        },
+        "onboarding": {
+            "enabled": true,
+            "label": "onboarding",
+            "channel_id": "1138601380374904964",
+            "message_format": "simple",
+            "icon": null
+        },
+        "pending": {
+            "enabled": true,
+            "label": "pending",
+            "channel_id": "1138601380374904964",
+            "message_format": "simple",
+            "icon": null
+        },
+        "role": {
+            "enabled": true,
+            "label": "role",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "timeout": {
+            "enabled": true,
+            "label": "timeout",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "username": {
+            "enabled": true,
+            "label": "username",
+            "channel_id": "1138601380374904964",
+            "message_format": "simple",
+            "icon": null
+        },
+        "voice": {
+            "enabled": true,
+            "label": "voice",
+            "channel_id": "1138601380374904964",
+            "message_format": "simple",
+            "icon": null
+        },
+        "moderator_nick": {
+            "enabled": true,
+            "label": "nick",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "moderator_delete": {
+            "enabled": true,
+            "label": "delete",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "moderator_move": {
+            "enabled": true,
+            "label": "move",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "moderator_disconnect": {
+            "enabled": true,
+            "label": "disconnect",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "moderator_role": {
+            "enabled": true,
+            "label": "role",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        },
+        "pin": {
+            "enabled": true,
+            "label": "pin",
+            "channel_id": "1139080828098457650",
+            "message_format": "simple",
+            "icon": null
+        }
+    }
+}
