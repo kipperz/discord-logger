@@ -38,7 +38,9 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
 
 3. Modify config/settings.py
 
-4. Launch the bot:
+4. Modify config/guild_settings.json (/setup command coming soon)
+
+5. Launch the bot:
    ```
    python main.py
    ```
