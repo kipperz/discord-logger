@@ -38,5 +38,33 @@ class MemberActions(commands.Cog):
                 message = message,
             )
 
+        elif before.pending != after.pending:
+            await functions.log_event(
+                bot = self.bot,
+                log_type = self.bot.guild_settings[guild_id]['pending'],
+                user = after,
+                message = 'verified'
+            )
+
+        elif before.flags.started_onboarding != after.flags.started_onboarding:
+            await functions.log_event(
+                bot = self.bot,
+                log_type = self.bot.guild_settings[guild_id]['onboarding'],
+                user = after,
+                message = 'started'
+            )
+
+        elif before.flags.completed_onboarding != after.flags.completed_onboarding:
+            await functions.log_event(
+                bot = self.bot,
+                log_type = self.bot.guild_settings[guild_id]['onboarding'],
+                user = after,
+                message = 'completed'
+            )
+
+    @commands.Cog.listener()
+    async def on_invite_create(self, invite: discord.Invite):
+        pass
+
 async def setup(bot: commands.Bot):
     await bot.add_cog(MemberActions(bot))
