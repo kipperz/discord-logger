@@ -18,7 +18,8 @@ class DiscordBot(commands.Bot):
         super().__init__(
             command_prefix = config.settings.COMMAND_PREFIX,
             intents = discord.Intents.all(),
-            log_hander = logger
+            log_hander = logger,
+            application_id=config.settings.APPLICATION_ID,
         )
         self.logger = logger
         self.synced = False # still needed?
