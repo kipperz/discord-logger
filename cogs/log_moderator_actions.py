@@ -150,8 +150,8 @@ class ModeratorActions(commands.Cog):
             return
 
         log_type = 'moderator_role'
-        after_roles = [role.mention for role in entry.after]
-        before_roles = [role.mention for role in entry.before]
+        after_roles = [role.mention for role in entry.after.roles]
+        before_roles = [role.mention for role in entry.before.roles]
         target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
 
         if after_roles:
