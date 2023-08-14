@@ -9,7 +9,7 @@ class AdminCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @discord.app_commands.command(name='settings', description='Configure server logging settings - choose any or all of the parameters')
+    @discord.app_commands.command(name='settings', description='Fine tune logging settings - choose any or all of the parameters')
     @discord.app_commands.guild_only
     @discord.app_commands.default_permissions()
     @discord.app_commands.describe(log_type='The type of log to manage')
@@ -89,7 +89,61 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(f'Updated **{log_type.capitalize()} Log** settings\n> {join_string.join(settings)}', ephemeral=True)
 
         else:
-            await interaction.response.send_message('Logging for this guild is not setup')
+            await interaction.response.send_message('Please run /setup first', ephemeral=True)
+
+    @discord.app_commands.command(name='setup', description='First time setup or reset to default settings - leave parameter blank to disable')
+    @discord.app_commands.guild_only
+    @discord.app_commands.default_permissions()
+    @discord.app_commands.describe(join_part='Guild join and part logging')
+    @discord.app_commands.describe(message_log='Member message edit/delete logging and database backup')
+    @discord.app_commands.describe(member_actions='Member actions logging such as nickname changes')
+    @discord.app_commands.describe(moderator_actions='Moderator actions such as timeouts')
+    @discord.app_commands.describe(voice='Voice channel join and disconnect logging')
+    @discord.app_commands.describe(audit_log='Audit log entry logging and database backup')
+    async def setup(
+        self,
+        interaction: discord.Interaction,
+        join_part: discord.TextChannel = None,
+        message_log: discord.TextChannel = None,
+        member_actions: discord.TextChannel = None,
+        moderator_actions: discord.TextChannel = None,
+        voice: discord.TextChannel = None,
+        audit_log: discord.TextChannel = None,
+    ):
+        setting_categories = {
+            'join_part': (join_part, ['join', 'rejoin', 'part']),
+            'message_log': (message_log, ['delete', 'edit']),
+            'member_actions': (member_actions, ['nick', 'onboarding', 'pending', 'role', 'username']),
+            'moderator_actions': (moderator_actions, ['ban', 'deaf', 'kick', 'moderator_delete', 'moderator_disconnect', 'moderator_move', 'moderator_nick', 'moderator_role', 'mute', 'pin', 'timeout']),
+            'voice': (voice, ['voice']),
+            'audit_log': (audit_log, ['audit'])
+        }
+
+        guild_settings = {}
+        for setting_category, (channel, settings) in setting_categories.items():
+            for setting in settings:
+                setting_dict = {
+                    'category': setting_category,
+                    'channel_id': str(channel.id) if channel else '',
+                    'enabled': True if channel else False,
+                    'icon_url': None,
+                    'label': setting,
+                    'message_format': 'simple'
+                }
+                guild_settings[setting] = setting_dict
+
+        with open('config/guild_settings.json', 'r', encoding='utf-8') as file:
+            settings_json = json.load(file)
+
+        settings_json[str(interaction.guild.id)] = guild_settings
+
+        with open('config/guild_settings.json', "w", encoding='utf-8') as file:
+            json.dump(settings_json, file, indent=4)
+
+        if join_part:
+            await set_guild_invites(bot=interaction.client, guild=interaction.guild)
+
+        await interaction.response.send_message('Setup complete!', ephemeral=True)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(AdminCommands(bot))
