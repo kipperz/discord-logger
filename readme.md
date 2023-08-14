@@ -7,7 +7,7 @@ Discord Logger is an open-source bot designed to meticulously track and log serv
 Discord Logger is in early-development and is brought to you by kipperz, streamer [twitch.tv/kipperzGG](https://twitch.tv/kipperzGG) and owner/developer of [discord.gg/kipperz](https://discord.gg/kipperz).
 
 ## Beta Release
-- **Version 0.9**: Before official 1.0 release, we need to add a /setup command, finish message formatting, and complete testing. Please contact kipperz on Discord if you would like to help test.
+- **Version 0.9.1**: Discord Logger is not yet ready for full deployment. Ahead of our 1.0 release, we're adding a /setup command, improving message formats, and testing thoroughly. To assist in testing, contact kipperz on Discord.
 
 ## Features
 
