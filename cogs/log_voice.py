@@ -13,10 +13,13 @@ class VoiceLog(commands.Cog):
         if not functions.guild_check(bot=self.bot, guild_id=member.guild.id):
             return
 
+        before_channel = before.channel.mention if before.channel else None
+        after_channel = after.channel.mention if after.channel else None
+
         messages = {
-            (False, True): f'joined {after.channel.mention}',
-            (True, False): f'disconnected from {before.channel.mention}',
-            (True, True): f'moved from {before.channel.mention} to {after.channel.mention}',
+            (False, True): f'joined {after_channel}',
+            (True, False): f'disconnected from {before_channel}',
+            (True, True): f'moved from {before_channel} to {after_channel}',
         }
         message = messages[(bool(before.channel), bool(after.channel))]
         await self.log_voice_event(member=member, message=message)
