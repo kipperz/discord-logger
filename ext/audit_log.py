@@ -3,16 +3,8 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from config.settings import log_database
-from ext import functions
+from ext import embeds
 
-
-def database_insert_audit_log_entry(entry):
-    result = log_database.audit_log.insert_one(recursive_object_to_dict(entry))
-    if result.inserted_id is not None and result.acknowledged is True:
-        pass
-    else:
-        print('new log not inserted')
 
 def recursive_object_to_dict(obj, depth=0, max_depth=7):
     if depth > max_depth:
@@ -97,20 +89,11 @@ async def log_audit_log_entry(bot: commands.Bot, entry: discord.AuditLogEntry, l
 
     content, embed = None, None
     if log_settings['message_format'] == 'text':
-        content = f'`{log_settings["label"]}: {entry.id}` {user} {log_entry_details.action} {log_entry_details.target}'
-
+        content = embeds.audit_log_text(entry=entry, log_type=log_settings, log_entry_details=log_entry_details, user=user)
     elif log_settings['message_format'] == 'simple':
-        embed = functions.create_embed(
-            description=f'{user} {log_entry_details.action} {log_entry_details.target}',
-            image=None,
-            footer=entry.id
-        )
-
+        embed = embeds.audit_log_simple(entry=entry, log_type=log_settings, log_entry_details=log_entry_details, user=user)
     elif log_settings['message_format'] == 'extended':
-        embed = functions.create_embed(
-            description=f'`{log_settings["label"]}` {user} {log_entry_details.action} {log_entry_details.target}',
-            footer=entry.id
-        )
+        embed = embeds.audit_log_extended(entry=entry, log_type=log_settings, log_entry_details=log_entry_details, user=user)
 
     await channel.send(content=content, embed=embed)
 

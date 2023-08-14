@@ -10,47 +10,55 @@ class JoinPart(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        guild_id = member.guild.id
-        if guild_id not in self.bot.guild_settings:
+        if not functions.guild_check(bot=self.bot, guild_id=member.guild.id):
             return
 
-        message, footer = None, None
-        before_invites = self.bot.guild_settings[guild_id].get('invites', [])
-        if before_invites:
-            try:
-                after_invites = await member.guild.invites()
-            except discord.Forbidden:
-                after_invites = []
+        log_type = 'rejoin' if member.flags.did_rejoin else 'join'
+        message, footer = await self.guild_invite_compare(member.guild)
+        await self.log_join_part(log_type=log_type, member=member, message=message, footer=footer)
 
-            if after_invites:
-                self.bot.guild_settings[guild_id]['invites'] = after_invites
+    @commands.Cog.listener()
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
+        if not functions.guild_check(bot=self.bot, guild_id=payload.guild_id):
+            return
 
-                for before, after in zip(before_invites, after_invites):
-                    if before.uses < after.uses:
-                        message = f'Invited by: {after.inviter.mention} `{after.inviter}`'
-                        footer = f'Invite: {after.code}'
-                        break
+        log_type = 'part'
+        await self.log_join_part(log_type=log_type, member=payload.user)
 
-        join_type = 'rejoin' if member.flags.did_rejoin else 'join'
+    @commands.Cog.listener()
+    async def on_invite_create(self, invite: discord.Invite):
+        await functions.set_guild_invites(bot=self.bot, guild=invite.guild)
+
+    async def log_join_part(self, log_type: str, member: discord.User, message: str = None, footer: str = None):
         await functions.log_event(
             bot = self.bot,
-            log_type = self.bot.guild_settings[guild_id][join_type],
+            log_type = self.bot.guild_settings[member.guild.id][log_type],
             user = member,
             message = message,
             footer = footer
         )
 
-    @commands.Cog.listener()
-    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
-        guild_id = payload.guild_id
-        if guild_id not in self.bot.guild_settings:
-            return
+    async def guild_invite_compare(self, guild: discord.Guild):
+        message, footer = None, None
+        before_invites = self.bot.guild_settings[guild.id].get('invites', [])
+        before_dict = {invite.code: invite.uses for invite in before_invites}
 
-        await functions.log_event(
-            bot = self.bot,
-            log_type = self.bot.guild_settings[guild_id]['part'],
-            user = payload.user
-        )
+        try:
+            after_invites = await guild.invites()
+        except discord.Forbidden:
+            after_invites = []
+
+        if after_invites:
+            self.bot.guild_settings[guild.id]['invites'] = after_invites
+
+            for after in after_invites:
+                before_uses = before_dict.get(after.code)
+                if before_uses is not None and before_uses < after.uses:
+                    message = f'Invited by: {after.inviter.mention} `{after.inviter}`'
+                    footer = f'Invite: {after.code}'
+                    break
+
+        return message, footer
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(JoinPart(bot))

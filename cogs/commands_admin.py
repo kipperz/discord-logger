@@ -3,6 +3,7 @@ import json
 import discord
 from discord.ext import commands
 
+from ext.functions import set_guild_invites
 
 class AdminCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -82,11 +83,7 @@ class AdminCommands(commands.Cog):
                 json.dump(guild_settings, file_pointer, indent=4)
 
             self.bot.guild_settings[interaction.guild.id] = guild_settings[str(interaction.guild.id)]
-
-            try:
-                self.bot.guild_settings[interaction.guild.id]['invites'] = await interaction.guild.invites()
-            except discord.Forbidden:
-                self.bot.logger.warning('not tracking invites for guild %s %s - Missing Permissions', interaction.guild, interaction.guild.id)
+            await set_guild_invites(bot=self.bot, guild=interaction.guild)
 
             join_string = '\n > '
             await interaction.response.send_message(f'Updated **{log_type.capitalize()} Log** settings\n> {join_string.join(settings)}', ephemeral=True)

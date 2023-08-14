@@ -12,66 +12,52 @@ class MemberActions(commands.Cog):
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
         for guild in after.mutual_guilds:
-            guild_id = guild.id
-            if guild_id not in self.bot.guild_settings:
+            if not functions.guild_check(bot=self.bot, guild_id=guild.id):
                 return
 
-            if str(before) != str(after): #pylint: disable=protected-access
-                message = f'from **{escape_markdown(str(before))}** to **{escape_markdown(str(after))}**' #pylint: disable=protected-access
-                await functions.log_event(
-                    bot = self.bot,
-                    log_type = self.bot.guild_settings[guild_id]['username'],
-                    user = after,
-                    message = message,
-                )
+            log_type = 'username'
+            message = f'from **{escape_markdown(str(before))}** to **{escape_markdown(str(after))}**'
+            if str(before) != str(after):
+                await self.log_member_update_event(log_type=log_type, member=after, message=message, guild=guild)
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        guild_id = after.guild.id
-        if guild_id not in self.bot.guild_settings:
+        if not functions.guild_check(bot=self.bot, guild_id=after.guild.id):
             return
 
-        if before.nick != after.nick:
-            if before.nick is None and after.nick is not None:
-                message = f'set nick to **{escape_markdown(after.nick)}**'
-            if before.nick is not None and after.nick is None:
-                message = f'removed nickname **{escape_markdown(before.nick)}**'
-            if before.nick is not None and after.nick is not None:
-                message = f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**'
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['nick'],
-                user = after,
-                message = message,
-            )
+        update_checks = {
+            (before.nick, after.nick): lambda: self.nick_handler(before=before, after=after),
+            (before.pending, after.pending): lambda: self.log_member_update_event(log_type='pending', member=after, message='verified'),
+            (before.flags.started_onboarding, after.flags.started_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='started'),
+            (before.flags.completed_onboarding, after.flags.completed_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='completed')
+        }
 
-        elif before.pending != after.pending:
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['pending'],
-                user = after,
-                message = 'verified'
-            )
+        for (before_attr, after_attr), handler in update_checks.items():
+            if before_attr != after_attr:
+                await handler()
+                break
 
-        elif before.flags.started_onboarding != after.flags.started_onboarding:
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['onboarding'],
-                user = after,
-                message = 'started'
-            )
+    async def nick_handler(self, before: discord.Member, after: discord.Member):
+        nick_changes = {
+            (None, not None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'set nick to **{escape_markdown(after.nick)}**'),
+            (not None, None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'removed nickname **{escape_markdown(before.nick)}**'),
+            (not None, not None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**')
+        }
 
-        elif before.flags.completed_onboarding != after.flags.completed_onboarding:
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['onboarding'],
-                user = after,
-                message = 'completed'
-            )
+        handler = nick_changes[(before.nick, after.nick)]
+        if handler:
+            await handler()
 
-    @commands.Cog.listener()
-    async def on_invite_create(self, invite: discord.Invite):
-        pass
+    async def log_member_update_event(self, log_type: str, member: discord.Member, message: str, guild: discord.Guild = None):
+        if guild is None:
+            guild = member.guild
+
+        await functions.log_event(
+            bot = self.bot,
+            log_type = self.bot.guild_settings[guild.id][log_type],
+            user = member,
+            message = message
+        )
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(MemberActions(bot))

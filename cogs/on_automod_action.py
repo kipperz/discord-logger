@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+from ext import functions
+
 
 class OnAutoModAction(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -8,7 +10,7 @@ class OnAutoModAction(commands.Cog):
 
     @commands.Cog.listener()
     async def on_auto_mod_action(self, guild: discord.Guild, user: discord.User):
-        if guild.id not in self.bot.guild_settings:
+        if not functions.guild_check(bot=self.bot, guild_id=guild.id):
             return
 
 async def setup(bot: commands.Bot):

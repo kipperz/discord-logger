@@ -13,201 +13,173 @@ class ModeratorActions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_audit_log_entry_create(self, entry: discord.AuditLogEntry):
-        guild_id = entry.guild.id
-        if guild_id not in self.bot.guild_settings:
+        async def default_handler(entry):
+            pass
+
+        if not functions.guild_check(bot=self.bot, guild_id=entry.guild.id):
             return
 
-        if entry.action == discord.AuditLogAction.kick:
+        handler_name = f'{entry.action.name.lower()}_handler'
+        handler = getattr(self, handler_name, default_handler)
+        await handler(entry)
+
+    async def kick_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'kick'
+        try:
             target = await self.bot.fetch_user(entry.target.id)
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['kick'],
-                user = target,
-                message = entry.reason,
-                moderator = entry.user
-            )
-            # Code in progress to edit the part message to indicate member was kicked
-            #
-            # part_chan = self.bot.get_channel(settings.PART_LOG)
-            # async for message in part_chan(limit=5):
-            #     if settings.PART_LOG.message_format == 'text':
-            #         if message.content.startswith(f'`{settings.PART_LOG.label.upper()}` {target.mention} `{str(target)}`'):
-            #             content = f'{message.content} | Kicked by {entry.user.mention}'
-            #             if entry.reason is not None:
-            #                 content = f'{content} for {entry.reason}'
-            #             await message.edit(content=content)
-            #     elif settings.PART_LOG.message_format == 'simple':
-            #         if message.embeds:
-            #             if f'`{settings.PART_LOG.label.upper()}` {target.mention} `{str(target)}`' in message.embeds[0].description:
-            #                 description = f'{message.embeds[0].description} | Kicked by {entry.user.mention}'
-            #                 if entry.reason is not None:
-            #                     description = f'{description} for {entry.reason}'
+        except:
+            pass
+        message = f'kicked {target.mention} `{functions.get_username(target)}`'
+        if entry.reason:
+            message += f'| Reason: {entry.reason}'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-            #                 await message.edit(embed=functions.create_embed(description=description))
-            #     elif settings.PART_LOG.message_format == 'extended':
-            #         if message.embeds:
-            #             pass
+    async def ban_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'ban'
+        target = await self.bot.fetch_user(entry.target.id)
+        message = f'banned {target.mention} `{functions.get_username(target)}`'
+        if entry.reason:
+            message += f'| Reason: {entry.reason}'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-        elif entry.action in (discord.AuditLogAction.ban, discord.AuditLogAction.unban):
-            target = await self.bot.fetch_user(entry.target.id)
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['ban'],
-                user = target,
-                message = entry.reason,
-                moderator = entry.user
-            )
+    async def unban_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'ban'
+        target = await self.bot.fetch_user(entry.target.id)
+        message = f'unbanned {target.mention} `{functions.get_username(target)}`'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-        elif entry.action == discord.AuditLogAction.member_update:
-            if hasattr(entry.after, 'timed_out_until'):
-                if entry.before.timed_out_until is None:
-                    await functions.log_event(
-                        bot = self.bot,
-                        log_type = self.bot.guild_settings[guild_id]['timeout'],
-                        user = entry.target,
-                        message = functions.timeout_description(entry),
-                        moderator = entry.user
-                    )
-                elif entry.before.timed_out_until < datetime.now(timezone.utc):
-                    await functions.log_event(
-                        bot = self.bot,
-                        log_type = self.bot.guild_settings[guild_id]['timeout'],
-                        user = entry.target,
-                        message = functions.timeout_description(entry),
-                        moderator = entry.user
-                    )
-                elif entry.after.timed_out_until is None:
-                    await functions.log_event(
-                        bot = self.bot,
-                        log_type = self.bot.guild_settings[guild_id]['timeout'],
-                        user = entry.target,
-                        message = 'Removed',
-                        moderator = entry.user
-                    )
-                else:
-                    await functions.log_event(
-                        bot = self.bot,
-                        log_type = self.bot.guild_settings[guild_id]['timeout'],
-                        user = entry.target,
-                        message = f'Updated {functions.timeout_description(entry)}',
-                        moderator = entry.user
-                    )
-            elif hasattr(entry.after, 'deaf'):
-                deafen_after = getattr(entry.after, 'deaf', None)
-                if deafen_after is True:
-                    message = f'deafened {entry.target.mention} `{entry.target}`'
-                else:
-                    message = f'undeafened {entry.target.mention} `{entry.target}`'
+    async def member_update_handler(self, entry: discord.AuditLogEntry):
+        attribute_to_handler = {
+            'timed_out_until': self.member_time_out,
+            'deaf': self.member_deafen,
+            'mute': self.member_mute,
+            'nick': self.member_nick
+        }
 
-                await functions.log_event(
-                    bot = self.bot,
-                    log_type = self.bot.guild_settings[guild_id]['voice'],
-                    user = entry.user,
-                    message = message,
-                )
-            elif hasattr(entry.after, 'mute') or hasattr(entry.after, 'deafen'):
-                mute_after = getattr(entry.after, 'mute', None)
-                if mute_after is True:
-                    message = f'muted {entry.target.mention} `{entry.target}`'
-                else:
-                    message = f'unmuted {entry.target.mention} `{entry.target}`'
+        for attr, handler in attribute_to_handler.items():
+            if hasattr(entry.after, attr):
+                await handler(entry)
+                break
 
-                await functions.log_event(
-                    bot = self.bot,
-                    log_type = self.bot.guild_settings[guild_id]['voice'],
-                    user = entry.user,
-                    message = message,
-                )
-            elif hasattr(entry.after, 'nick'):
-                old_nick = getattr(entry.before, 'nick', None)
-                new_nick = getattr(entry.after, 'nick', None)
-                target = f'{entry.target.mention} `{entry.target._user}`' #pylint: disable=protected-access
+    async def member_time_out(self, entry: discord.AuditLogEntry):
+        def timeout_length():
+            return functions.human_readable_timedelta(entry.after.timed_out_until - entry.created_at)
 
-                if old_nick is None and new_nick is not None:
-                    message = f'set nickname for {target} to **{escape_markdown(new_nick)}**'
-                if old_nick is not None and new_nick is None:
-                    message = f'removed nickname **{escape_markdown(old_nick)}** from {target}'
-                if old_nick is not None and new_nick is not None:
-                    message = f'changed nickname for {target} from **{escape_markdown(old_nick)}** to **{escape_markdown(new_nick)}**'
+        log_type = 'timeout'
+        member_details = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
+        if not entry.before.timed_out_until or entry.before.timed_out_until < datetime.now(timezone.utc):
+            message = f'timed out {member_details} for {timeout_length()}'
+            if entry.reason:
+                message += f'| Reason: {entry.reason}'
+            await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+        elif not entry.after.timed_out_until:
+            message = f'removed timed out from {member_details}`'
+            await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+        else:
+            message = f'updated timeout for {member_details} to {timeout_length()}'
+            if entry.reason:
+                message += f'| Reason: {entry.reason}'
+            await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-                await functions.log_event(
-                    bot = self.bot,
-                    log_type = self.bot.guild_settings[guild_id]['moderator_nick'],
-                    user = entry.user,
-                    message = message,
-                )
+    async def member_deafen(self, entry: discord.AuditLogEntry):
+        log_type = 'deaf'
+        deafen_after = getattr(entry.after, 'deaf', None)
+        if deafen_after is True:
+            message = f'deafened {entry.target.mention} `{functions.get_username(entry.target)}`'
+        else:
+            message = f'undeafened {entry.target.mention} `{functions.get_username(entry.target)}`'
 
-        elif entry.action == discord.AuditLogAction.message_delete:
-            if entry.user.bot:
-                return
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-            message = f'deleted {entry.extra.count} message(s) in **#{entry.extra.channel.name}** `{entry.extra.channel.id}` sent by {entry.target.mention} `{(entry.target._user)}`' #pylint: disable=protected-access
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['moderator_delete'],
-                user = entry.user,
-                message = message,
-            )
+    async def member_mute(self, entry: discord.AuditLogEntry):
+        log_type = 'mute'
+        mute_after = getattr(entry.after, 'mute', None)
+        if mute_after is True:
+            message = f'muted {entry.target.mention} `{functions.get_username(entry.target)}`'
+        else:
+            message = f'unmuted {entry.target.mention} `{functions.get_username(entry.target)}`'
 
-        elif entry.action == discord.AuditLogAction.member_move:
-            message = f'{entry.extra.count} member(s) were moved to **#{entry.extra.channel.name}** `{entry.extra.channel.id}`'
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['voice'],
-                user = entry.user,
-                message = message,
-            )
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-        elif entry.action == discord.AuditLogAction.member_disconnect:
-            message = f'disconnected {entry.extra.count} member(s)'
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['moderator_disconnect'],
-                user = entry.user,
-                message = message,
-            )
+    async def member_nick(self, entry: discord.AuditLogEntry):
+        log_type = 'moderator_nick'
+        old_nick = getattr(entry.before, 'nick', None)
+        new_nick = getattr(entry.after, 'nick', None)
+        target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
 
-        elif entry.action == discord.AuditLogAction.member_role_update:
-            if entry.user.bot:
-                return
+        messages = {
+            (False, True): f'set nickname for {target} to **{escape_markdown(new_nick)}**',
+            (True, False): f'removed nickname **{escape_markdown(old_nick)}** from {target}',
+            (True, True): f'changed nickname for {target} from **{escape_markdown(old_nick)}** to **{escape_markdown(new_nick)}**'
+        }
 
-            after_roles = []
-            for role in entry.after:
-                after_roles.append(role.mention)
-            before_roles = []
-            for role in entry.before:
-                before_roles.append(role.mention)
+        message = messages[(bool(old_nick), bool(new_nick))]
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
-            target = f'{entry.target.mention} `{(entry.target._user)}`' #pylint: disable=protected-access
-            if after_roles:
-                message = f'removed {len(after_roles)} role(s) from {target}: {", ".join(after_roles)}'
-            elif before_roles:
-                message = f'granted {target} {len(before_roles)} role(s): {", ".join(after_roles)}'
+    async def message_delete_handler(self, entry: discord.AuditLogEntry):
+        if entry.user.bot:
+            return
 
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['moderator_role'],
-                user = entry.user,
-                message = message,
-            )
+        if isinstance(entry.target, discord.object.Object):
+            try:
+                target = await self.bot.fetch_user(entry.target.id)
+            except discord.errors.NotFound:
+                username = 'Deleted User'
 
-        elif entry.action == discord.AuditLogAction.message_pin:
-            jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['pin'],
-                user = entry.user,
-                message = f'pinned message: {jump_url}',
-            )
+            if target is None:
+                username = 'Deleted User'
+        else:
+            username = functions.get_username(entry.target)
 
-        elif entry.action == discord.AuditLogAction.message_unpin:
-            jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
-            await functions.log_event(
-                bot = self.bot,
-                log_type = self.bot.guild_settings[guild_id]['pin'],
-                user = entry.user,
-                message = f'unpinned message: {jump_url}',
-            )
+        log_type = 'moderator_delete'
+        message = f'deleted {entry.extra.count} message(s) in **#{entry.extra.channel.name}** `{entry.extra.channel.id}` sent by <@{entry.target.id}> `{username}`'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def member_move_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'moderator_move'
+        message = f'{entry.extra.count} member(s) were moved to **#{entry.extra.channel.name}** `{entry.extra.channel.id}`'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def member_disconnect_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'moderator_disconnect'
+        message = f'disconnected {entry.extra.count} member(s)'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def member_role_update_handler(self, entry: discord.AuditLogEntry):
+        if entry.user.bot:
+            return
+
+        log_type = 'moderator_role'
+        after_roles = [role.mention for role in entry.after]
+        before_roles = [role.mention for role in entry.before]
+        target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
+
+        if after_roles:
+            message = f'removed {len(after_roles)} role(s) from {target}: {", ".join(after_roles)}'
+        elif before_roles:
+            message = f'granted {target} {len(before_roles)} role(s): {", ".join(before_roles)}'
+
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def message_pin_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'pin'
+        jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
+        message = f'pinned message: {jump_url}'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def message_unpin_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'pin'
+        jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
+        message = f'unpinned message: {jump_url}'
+        await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
+
+    async def log_moderator_action_event(self, moderator: discord.Member, log_type: str, message: str):
+        await functions.log_moderator_action(
+            bot = self.bot,
+            moderator = moderator,
+            log_type = self.bot.guild_settings[moderator.guild.id][log_type],
+            message = message
+        )
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ModeratorActions(bot))

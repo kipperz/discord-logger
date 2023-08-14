@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 import os
 import sys
@@ -8,6 +7,7 @@ import discord
 from discord.ext import commands
 
 import config
+from ext.functions import set_guild_invites
 
 
 logger = logging.getLogger()
@@ -47,20 +47,8 @@ class DiscordBot(commands.Bot):
     async def on_ready(self):
         await self.wait_until_ready()
 
-        with open('config/guild_settings.json', 'r', encoding='utf-8') as json_file:
-            settings = json.load(json_file)
-
         for guild in self.guilds:
-            if str(guild.id) in settings:
-                self.guild_settings[guild.id] = settings[str(guild.id)]
-
-                try:
-                    self.guild_settings[guild.id]['invites'] = await guild.invites()
-                except discord.Forbidden:
-                    self.logger.warning('not tracking invites for guild %s %s - Missing Permissions', guild, guild.id)
-
-            else:
-                self.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
+            await set_guild_invites(self, guild)
 
         self.logger.critical('logged in as %s | %s', self.user.name, self.user.id)
 

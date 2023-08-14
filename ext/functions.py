@@ -1,46 +1,39 @@
+import json
+
 import discord
 from discord.ext import commands
+from discord.utils import escape_markdown
 
-from config.settings import log_database
+from ext import embeds
+
+async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
+    with open('config/guild_settings.json', 'r', encoding='utf-8') as json_file:
+        settings = json.load(json_file)
+
+    if str(guild.id) in settings:
+        bot.guild_settings[guild.id] = settings[str(guild.id)]
+
+        try:
+            bot.guild_settings[guild.id]['invites'] = await guild.invites()
+        except discord.Forbidden:
+            bot.guild_settings[guild.id]['invites'] = []
+            bot.logger.warning('not tracking invites for guild %s %s - Missing Permissions', guild, guild.id)
+
+    else:
+        bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
 
-def create_embed(
-        title = None,
-        description = None,
-        color = 0x2b2d31,
-        image ='https://cdn.discordapp.com/attachments/683804747337039894/999163953353597009/embed.png',
-        author = None,
-        author_icon = None,
-        footer = None,
-        footer_icon = None,
-        timestamp = None,
-        thumbnail = None,
-        url = None,
-        fields = []
-    ): #pylint: disable=dangerous-default-value
+def get_username(user_object: discord.abc.User):
+    if isinstance(user_object, discord.Member):
+        return escape_markdown(str(user_object._user)) #pylint: disable=protected-access
+    else:
+        return escape_markdown(str(user_object))
 
-    if description is not None:
-        description = ''.join(description)
-
-    discord_embed = discord.Embed(title=title, description=description, url=url, color=color)
-
-    if author is not None:
-        discord_embed.set_author(name=author, icon_url=author_icon)
-
-    if fields:
-        for field in fields:
-            discord_embed.add_field(name=field[0], value=field[1], inline=field[2])
-
-    discord_embed.set_thumbnail(url=thumbnail)
-
-    discord_embed.set_image(url=image)
-
-    if footer is not None:
-        discord_embed.set_footer(text=footer, icon_url=footer_icon)
-
-    discord_embed.timestamp = timestamp
-
-    return discord_embed
+def guild_check(bot: commands.Bot, guild_id: int):
+    if guild_id in bot.guild_settings:
+        return True
+    else:
+        return False
 
 async def log_event(
     bot: commands.Bot,
@@ -58,114 +51,39 @@ async def log_event(
         bot.logger.error('%s Log channel with ID %s not found', log_type['label'], log_type['channel_id'])
         return
 
+    content, embed = None, None
     if log_type['message_format'] == 'extended':
-        embed = extended_embed(log_type, user, message, footer, moderator)
-        await channel.send(embed=embed)
-
+        embed = embeds.general_log_extended(log_type=log_type, user=user, message=message, footer=footer, moderator=moderator)
     if log_type['message_format'] == 'simple':
-        embed = simple_embed(log_type, user, message, footer, moderator)
-        await channel.send(embed=embed)
-
+        embed = embeds.general_log_simple(log_type=log_type, user=user, message=message, footer=footer, moderator=moderator)
     elif log_type['message_format'] == 'text':
-        content = text_log(log_type, user, message, footer, moderator)
-        await channel.send(content)
+        content = embeds.general_log_text(log_type=log_type, user=user, message=message, footer=footer, moderator=moderator)
 
-def extended_embed( # WIP - do not use
+    await channel.send(content=content, embed=embed)
+
+async def log_moderator_action( # not logging mod actions
+    bot: commands.Bot,
+    moderator: discord.Member,
     log_type: dict,
-    user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
+    message: str,
 ):
-    if isinstance(user, discord.Member):
-        username = user._user #pylint: disable=protected-access
-    else:
-        username = str(user)
-    description = f'**User:** {user.mention} `{username}`'
-    if message is not None:
-        description = f'{description}\n{message}'
-    if moderator is not None:
-        description = f'{description}\n\nModerator: {moderator.mention}'
-    embed = create_embed(
-        author = log_type['label'].upper(),
-        author_icon = log_type['icon'],
-        description = description,
-        thumbnail = user.display_avatar.url,
-        footer = footer
-    )
-    return embed
-def simple_embed(
-    log_type: dict,
-    user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
-):
-    if isinstance(user, discord.Member):
-        username = user._user #pylint: disable=protected-access
-    else:
-        username = str(user)
+    if log_type['enabled'] is False:
+        return
 
-    log = f'`{log_type["label"].upper()}` {user.mention} `{username}`'
-    if message is not None:
-        log = f'{log} | {message}'
+    channel = bot.get_channel(int(log_type['channel_id']))
+    if channel is None:
+        bot.logger.error('%s Log channel with ID %s not found', log_type['label'], log_type['channel_id'])
+        return
 
-    if moderator is not None:
-        log = f'{log} | Moderator: {moderator.mention}'
+    content, embed = None, None
+    if log_type['message_format'] == 'extended':
+        embed = embeds.moderator_action_log_extended(log_type=log_type, moderator=moderator, message=message)
+    if log_type['message_format'] == 'simple':
+        embed = embeds.moderator_action_log_simple(log_type=log_type, moderator=moderator, message=message)
+    elif log_type['message_format'] == 'text':
+        content = embeds.moderator_action_log_text(log_type=log_type, moderator=moderator, message=message)
 
-    embed = create_embed(
-        description = log,
-        image = None,
-        footer = footer
-    )
-    return embed
-def text_log(
-    log_type: dict,
-    user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
-):
-    if isinstance(user, discord.Member):
-        username = user._user #pylint: disable=protected-access
-    else:
-        username = str(user)
-    log = f'`{log_type["label"].upper()}` {user.mention} `{username}`'
-    if message is not None:
-        log = f'{log} | {message}'
-
-    if moderator is not None:
-        log = f'{log} | Moderator: {moderator.mention}'
-
-    if footer is not None:
-        log = f'{log} | {footer}'
-
-    return log
-
-def database_insert_message(message):
-    doc = {
-        'message_id': str(message.id),
-        'guild_id': str(message.guild.id),
-        'channel_id': str(message.channel.id),
-        'author': str(message.author),
-        'author_id': str(message.author.id),
-        'created_at': message.created_at,
-        'content': message.content,
-        'edited_at': message.edited_at,
-        'deleted': False,
-    }
-
-    result = log_database[str(message.channel.id)].insert_one(doc)
-    if result.inserted_id is not None and result.acknowledged is True:
-        pass
-    else:
-        print('new log not inserted')
-
-def timeout_description(entry):
-    description = human_readable_timedelta(entry.after.timed_out_until - entry.created_at)
-    if entry.reason is not None:
-        description = f'{description} for {entry.reason}'
-    return description
+    await channel.send(content=content, embed=embed)
 
 def human_readable_timedelta(delta):
     days = delta.days
