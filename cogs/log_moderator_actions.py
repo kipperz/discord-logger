@@ -71,7 +71,7 @@ class ModeratorActions(commands.Cog):
         def timeout_length():
             return functions.human_readable_timedelta(entry.after.timed_out_until - entry.created_at)
 
-        log_type = 'timeout'
+        log_type = 'moderator_timeout'
         if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
             return
 
