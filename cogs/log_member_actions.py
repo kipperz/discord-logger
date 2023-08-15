@@ -11,20 +11,18 @@ class MemberActions(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before: discord.User, after: discord.User):
+        log_type = 'username'
+
         for guild in after.mutual_guilds:
-            if not functions.guild_check(bot=self.bot, guild_id=guild.id):
+            if not functions.enabled_check(bot=self.bot, guild_id=guild.id, log_type=log_type):
                 return
 
-            log_type = 'username'
             message = f'from **{escape_markdown(str(before))}** to **{escape_markdown(str(after))}**'
             if str(before) != str(after):
                 await self.log_member_update_event(log_type=log_type, member=after, message=message, guild=guild)
 
     @commands.Cog.listener()
     async def on_member_update(self, before: discord.Member, after: discord.Member):
-        if not functions.guild_check(bot=self.bot, guild_id=after.guild.id):
-            return
-
         update_checks = {
             (before.nick, after.nick): lambda: self.nick_handler(before=before, after=after),
             (before.pending, after.pending): lambda: self.log_member_update_event(log_type='pending', member=after, message='verified'),
@@ -38,10 +36,14 @@ class MemberActions(commands.Cog):
                 break
 
     async def nick_handler(self, before: discord.Member, after: discord.Member):
+        log_type='nick'
+        if not functions.enabled_check(bot=self.bot, guild_id=after.guild.id, log_type=log_type):
+            return
+
         nick_changes = {
-            (None, not None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'set nick to **{escape_markdown(after.nick)}**'),
-            (not None, None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'removed nickname **{escape_markdown(before.nick)}**'),
-            (not None, not None): lambda: self.log_member_update_event(log_type='nick', member=after, message=f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**')
+            (None, not None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'set nick to **{escape_markdown(after.nick)}**'),
+            (not None, None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'removed nickname **{escape_markdown(before.nick)}**'),
+            (not None, not None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**')
         }
 
         handler = nick_changes[(before.nick, after.nick)]
@@ -49,6 +51,9 @@ class MemberActions(commands.Cog):
             await handler()
 
     async def log_member_update_event(self, log_type: str, member: discord.Member, message: str, guild: discord.Guild = None):
+        if not functions.enabled_check(bot=self.bot, guild_id=guild.id, log_type=log_type):
+            return
+
         if guild is None:
             guild = member.guild
 

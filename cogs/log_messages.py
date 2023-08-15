@@ -19,7 +19,8 @@ class MessageLog(commands.Cog):
         if isinstance(message.channel, discord.DMChannel):
             return
 
-        if not functions.guild_check(bot=self.bot, guild_id=message.guild.id):
+        log_type = 'delete'
+        if not functions.enabled_check(bot=self.bot, guild_id=message.guild.id, log_type=log_type):
             return
 
         if not self.pre_checks(message):
@@ -32,11 +33,12 @@ class MessageLog(commands.Cog):
         if not payload.guild_id:
             return
 
-        if not functions.guild_check(bot=self.bot, guild_id=payload.guild_id):
+        log_type = 'delete'
+        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type):
             return
 
         timestamp = datetime.now(timezone.utc)
-        log_type = 'delete'
+
 
         if payload.cached_message is None:
             message = await database.database_get_last_message(bot=self.bot, guild_id=payload.guild_id, channel_id=payload.channel_id, message_id=payload.message_id)
@@ -59,10 +61,9 @@ class MessageLog(commands.Cog):
         if not payload.guild_id:
             return
 
-        if not functions.guild_check(bot=self.bot, guild_id=payload.guild_id):
-            return
-
         log_type = 'edit'
+        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type):
+            return
 
         try:
             message = await self.bot.get_channel(payload.channel_id).fetch_message(payload.message_id)

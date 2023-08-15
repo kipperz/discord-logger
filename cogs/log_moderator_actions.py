@@ -16,15 +16,15 @@ class ModeratorActions(commands.Cog):
         async def default_handler(entry):
             pass
 
-        if not functions.guild_check(bot=self.bot, guild_id=entry.guild.id):
-            return
-
         handler_name = f'{entry.action.name.lower()}_handler'
         handler = getattr(self, handler_name, default_handler)
         await handler(entry)
 
     async def kick_handler(self, entry: discord.AuditLogEntry):
-        log_type = 'kick'
+        log_type = 'moderator_kick'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         try:
             target = await self.bot.fetch_user(entry.target.id)
         except:
@@ -35,7 +35,10 @@ class ModeratorActions(commands.Cog):
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def ban_handler(self, entry: discord.AuditLogEntry):
-        log_type = 'ban'
+        log_type = 'moderator_ban'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         target = await self.bot.fetch_user(entry.target.id)
         message = f'banned {target.mention} `{functions.get_username(target)}`'
         if entry.reason:
@@ -43,7 +46,10 @@ class ModeratorActions(commands.Cog):
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def unban_handler(self, entry: discord.AuditLogEntry):
-        log_type = 'ban'
+        log_type = 'moderator_ban'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         target = await self.bot.fetch_user(entry.target.id)
         message = f'unbanned {target.mention} `{functions.get_username(target)}`'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
@@ -66,6 +72,9 @@ class ModeratorActions(commands.Cog):
             return functions.human_readable_timedelta(entry.after.timed_out_until - entry.created_at)
 
         log_type = 'timeout'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         member_details = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
         if not entry.before.timed_out_until or entry.before.timed_out_until < datetime.now(timezone.utc):
             message = f'timed out {member_details} for {timeout_length()}'
@@ -82,7 +91,10 @@ class ModeratorActions(commands.Cog):
             await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_deafen(self, entry: discord.AuditLogEntry):
-        log_type = 'deaf'
+        log_type = 'moderator_deafen'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         deafen_after = getattr(entry.after, 'deaf', None)
         if deafen_after is True:
             message = f'deafened {entry.target.mention} `{functions.get_username(entry.target)}`'
@@ -92,7 +104,10 @@ class ModeratorActions(commands.Cog):
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_mute(self, entry: discord.AuditLogEntry):
-        log_type = 'mute'
+        log_type = 'moderator_mute'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         mute_after = getattr(entry.after, 'mute', None)
         if mute_after is True:
             message = f'muted {entry.target.mention} `{functions.get_username(entry.target)}`'
@@ -103,6 +118,9 @@ class ModeratorActions(commands.Cog):
 
     async def member_nick(self, entry: discord.AuditLogEntry):
         log_type = 'moderator_nick'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         old_nick = getattr(entry.before, 'nick', None)
         new_nick = getattr(entry.after, 'nick', None)
         target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
@@ -117,6 +135,10 @@ class ModeratorActions(commands.Cog):
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def message_delete_handler(self, entry: discord.AuditLogEntry):
+        log_type = 'moderator_delete'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         if entry.user.bot:
             return
 
@@ -131,25 +153,33 @@ class ModeratorActions(commands.Cog):
         else:
             username = functions.get_username(entry.target)
 
-        log_type = 'moderator_delete'
         message = f'deleted {entry.extra.count} message(s) in **#{entry.extra.channel.name}** `{entry.extra.channel.id}` sent by <@{entry.target.id}> `{username}`'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_move_handler(self, entry: discord.AuditLogEntry):
         log_type = 'moderator_move'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         message = f'{entry.extra.count} member(s) were moved to **#{entry.extra.channel.name}** `{entry.extra.channel.id}`'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_disconnect_handler(self, entry: discord.AuditLogEntry):
         log_type = 'moderator_disconnect'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         message = f'disconnected {entry.extra.count} member(s)'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_role_update_handler(self, entry: discord.AuditLogEntry):
-        if entry.user.bot:
+        log_type = 'moderator_role'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
             return
 
-        log_type = 'moderator_role'
+        if entry.user.bot: # Member assigned Premium role - this is probably integration roles
+            return
+
         after_roles = [role.mention for role in entry.after.roles]
         before_roles = [role.mention for role in entry.before.roles]
         target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
@@ -162,13 +192,19 @@ class ModeratorActions(commands.Cog):
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def message_pin_handler(self, entry: discord.AuditLogEntry):
-        log_type = 'pin'
+        log_type = 'moderator_pin'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
         message = f'pinned message: {jump_url}'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def message_unpin_handler(self, entry: discord.AuditLogEntry):
-        log_type = 'pin'
+        log_type = 'moderator_pin'
+        if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
+            return
+
         jump_url = f'https://discord.com/channels/{entry.guild.id}/{entry.extra.channel.id}/{entry.extra.message_id}'
         message = f'unpinned message: {jump_url}'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)

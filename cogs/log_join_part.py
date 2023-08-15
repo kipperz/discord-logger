@@ -10,19 +10,19 @@ class JoinPart(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        if not functions.guild_check(bot=self.bot, guild_id=member.guild.id):
+        log_type = 'rejoin' if member.flags.did_rejoin else 'join'
+        if not functions.enabled_check(bot=self.bot, guild_id=member.guild.id, log_type=log_type):
             return
 
-        log_type = 'rejoin' if member.flags.did_rejoin else 'join'
         message, footer = await self.guild_invite_compare(member.guild)
         await self.log_join_part(log_type=log_type, member=member, message=message, footer=footer)
 
     @commands.Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
-        if not functions.guild_check(bot=self.bot, guild_id=payload.guild_id):
+        log_type = 'part'
+        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type):
             return
 
-        log_type = 'part'
         await self.log_join_part(log_type=log_type, member=payload.user)
 
     @commands.Cog.listener()

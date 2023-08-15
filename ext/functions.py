@@ -6,12 +6,24 @@ from discord.utils import escape_markdown
 
 from ext import embeds
 
-async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
-    with open('config/guild_settings.json', 'r', encoding='utf-8') as json_file:
-        settings = json.load(json_file)
 
-    if str(guild.id) in settings:
-        bot.guild_settings[guild.id] = settings[str(guild.id)]
+guild_settings_categories = ['audit_log', 'join_part', 'member_actions', 'message_log', 'moderator_actions', 'voice']
+
+def get_guild_settings():
+    with open('config/guild_settings.json', 'r', encoding='utf-8') as json_file:
+        guild_settings = json.load(json_file)
+
+    return guild_settings
+
+def write_guild_settings(guild_settings):
+    with open('config/guild_settings.json', 'w', encoding='utf-8') as file_pointer:
+        json.dump(guild_settings, file_pointer, indent=4)
+
+async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
+    guild_settings = get_guild_settings()
+
+    if str(guild.id) in guild_settings:
+        bot.guild_settings[guild.id] = guild_settings[str(guild.id)]
 
         try:
             bot.guild_settings[guild.id]['invites'] = await guild.invites()
@@ -22,18 +34,21 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     else:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
-
 def get_username(user_object: discord.abc.User):
     if isinstance(user_object, discord.Member):
         return escape_markdown(str(user_object._user)) #pylint: disable=protected-access
     else:
         return escape_markdown(str(user_object))
 
-def guild_check(bot: commands.Bot, guild_id: int):
-    if guild_id in bot.guild_settings:
-        return True
-    else:
+def enabled_check(bot: commands.Bot, guild_id: int, log_type):
+    guild_settings = bot.guild_settings.get(guild_id, None)
+    if not guild_settings:
         return False
+
+    if guild_settings[log_type]['disabled']:
+        return False
+
+    return True
 
 async def log_event(
     bot: commands.Bot,
@@ -43,9 +58,6 @@ async def log_event(
     footer: str = None,
     moderator: str = None
 ):
-    if log_type['enabled'] is False:
-        return
-
     channel = bot.get_channel(int(log_type['channel_id']))
     if channel is None:
         bot.logger.error('%s Log channel with ID %s not found', log_type['label'], log_type['channel_id'])
@@ -67,9 +79,6 @@ async def log_moderator_action( # not logging mod actions
     log_type: dict,
     message: str,
 ):
-    if log_type['enabled'] is False:
-        return
-
     channel = bot.get_channel(int(log_type['channel_id']))
     if channel is None:
         bot.logger.error('%s Log channel with ID %s not found', log_type['label'], log_type['channel_id'])
@@ -115,3 +124,10 @@ def human_readable_timedelta(delta):
         return format_unit(minutes, "MIN")
     else:
         return format_unit(seconds, "SEC")
+
+def pagination(view, button):
+    for item in view.children:
+        if item == button:
+            item.disabled = True
+        else:
+            item.disabled = False
