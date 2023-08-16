@@ -41,12 +41,12 @@ class MemberActions(commands.Cog):
             return
 
         nick_changes = {
-            (None, not None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'set nick to **{escape_markdown(after.nick)}**'),
-            (not None, None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'removed nickname **{escape_markdown(before.nick)}**'),
-            (not None, not None): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**')
+            (False, True): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'set nick to **{escape_markdown(after.nick)}**', guild=after.guild),
+            (True, False): lambda: self.log_member_update_event(log_type=log_type, member=before, message=f'removed nickname **{escape_markdown(before.nick)}**', guild=before.guild),
+            (True, True): lambda: self.log_member_update_event(log_type=log_type, member=after, message=f'changed nickname from **{escape_markdown(before.nick)}** to **{escape_markdown(after.nick)}**', guild=after.guild)
         }
 
-        handler = nick_changes[(before.nick, after.nick)]
+        handler = nick_changes[(bool(before.nick), bool(after.nick))]
         if handler:
             await handler()
 
