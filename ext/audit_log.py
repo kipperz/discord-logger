@@ -3,7 +3,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from ext import embeds
+from ext import embeds, functions
 
 
 def recursive_object_to_dict(obj, depth=0, max_depth=7):
@@ -122,6 +122,18 @@ async def generic_object_converter(bot: commands.Bot, guild: discord.Guild, entr
     elif entry.target.type == discord.app_commands.models.AppCommand:
         return entry, f'Command ID {entry.target.id}'
 
+    elif entry.target.type == discord.Member:
+        member = guild.get_member(entry.target.id)
+        if not member:
+            try:
+                user = await bot.fetch_user(entry.target.id)
+                username = functions.get_username(user_object=user, escape_markdown=True)
+            except discord.NotFound:
+                username = 'Deleted User'
+        else:
+            username = functions.get_username(user_object=member, escape_markdown=True)
+        return entry, f'**{username}** `{entry.target.id}`'
+
     else:
         print(f'else: {entry.target.type}')
         return entry, f'{entry.target.type.__name__}: ID `{entry.target.id}`'
@@ -158,9 +170,9 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
         discord.AuditLogAction.member_disconnect: 'disconnected from', # needs testing
         discord.AuditLogAction.member_role_update: 'updated roles for',
         discord.AuditLogAction.message_bulk_delete: 'bulk deleted message in', # needs testing
-        discord.AuditLogAction.message_delete: 'deleted a message sent by',
-        discord.AuditLogAction.message_pin: 'pinned a message in', # target seems to be guild
-        discord.AuditLogAction.message_unpin: 'unpinned a message in', # target seems to be guild
+        discord.AuditLogAction.message_delete: 'deleted a message in {channel} sent by',
+        discord.AuditLogAction.message_pin: 'pinned a message in {channel} sent by', # target seems to be guild
+        discord.AuditLogAction.message_unpin: 'unpinned a message in {channel} sent by', # target seems to be guild
         discord.AuditLogAction.overwrite_create: 'created channel overrides for',
         discord.AuditLogAction.overwrite_delete: 'deleted channel overrides for',
         discord.AuditLogAction.overwrite_update: 'updated channel overrides for',
@@ -183,8 +195,22 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
         discord.AuditLogAction.webhook_delete: 'deleted the webhook',
         discord.AuditLogAction.webhook_update: 'updated the webhook'
     }
+    channel_target_actions = [
+        'channel_create',
+        'channel_delete',
+        'channel_update',
+        'message_bulk_delete',
+        'overwrite_create',
+        'overwrite_delete',
+        'overwrite_update',
+        'thread_create',
+        'thread_delete',
+        'thread_update'
+    ]
 
+    print(type(entry.target))
     if isinstance(entry.target, discord.object.Object):
+        print(f'Generic target: {entry.target}')
         entry, target = await generic_object_converter(bot, guild, entry)
     elif hasattr(entry.target, 'name'):
         target = f'**{entry.target.name}** `{entry.target.id}`'
@@ -201,9 +227,13 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
             target = 'Need handler'
 
     action = action_descriptions[entry.action]
-    if entry.action.name in ('channel_create', 'channel_delete', 'channel_update', 'overwrite_create', 'overwrite_delete', 'overwrite_update', 'thread_create', 'thread_delete', 'thread_update'):
+    if entry.action.name in channel_target_actions:
         action = action.format(channel_type=entry.target.type)
         target = target[:2] + '#' + target[2:]
+    if entry.action.name in ('message_pin', 'message_unpin', 'message_delete'):
+        if isinstance(entry.extra.channel, discord.object.Object):
+            entry.extra.channel = bot.get_channel(entry.extra.channel.id)
+        action = action.format(channel=f'**#{entry.extra.channel.name}**')
     elif entry.action.name in ('automod_block_message', 'automod_flag_message', 'automod_timeout_member'):
         entry.user = '**AutoMod**'
 
