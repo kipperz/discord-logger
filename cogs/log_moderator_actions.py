@@ -145,6 +145,7 @@ class ModeratorActions(commands.Cog):
         if isinstance(entry.target, discord.object.Object):
             try:
                 target = await self.bot.fetch_user(entry.target.id)
+                username = functions.get_username(target)
             except discord.errors.NotFound:
                 username = 'Deleted User'
 
