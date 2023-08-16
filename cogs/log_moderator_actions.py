@@ -148,8 +148,6 @@ class ModeratorActions(commands.Cog):
             except discord.errors.NotFound:
                 username = 'Deleted User'
 
-            if target is None:
-                username = 'Deleted User'
         else:
             username = functions.get_username(entry.target)
 
