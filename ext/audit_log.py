@@ -208,9 +208,7 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
         'thread_update'
     ]
 
-    print(type(entry.target))
     if isinstance(entry.target, discord.object.Object):
-        print(f'Generic target: {entry.target}')
         entry, target = await generic_object_converter(bot, guild, entry)
     elif hasattr(entry.target, 'name'):
         target = f'**{entry.target.name}** `{entry.target.id}`'
@@ -219,8 +217,6 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
     elif entry.target is not None:
         target = str(entry.target)
     else:
-        # print('Entry target is none')
-        # print(entry.__dict__)
         if hasattr(entry.after, 'name'):
             target = f'**{entry.after.name}** `{entry.after.id}`'
         else:
