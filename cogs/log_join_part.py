@@ -29,6 +29,10 @@ class JoinPart(commands.Cog):
     async def on_invite_create(self, invite: discord.Invite):
         await functions.set_guild_invites(bot=self.bot, guild=invite.guild)
 
+    @commands.Cog.listener()
+    async def on_invite_delete(self, invite: discord.Invite):
+        await functions.set_guild_invites(bot=self.bot, guild=invite.guild)
+
     async def log_join_part(self, log_type: str, member: discord.User, message: str = None, footer: str = None):
         await functions.log_event(
             bot = self.bot,
@@ -39,6 +43,7 @@ class JoinPart(commands.Cog):
         )
 
     async def guild_invite_compare(self, guild: discord.Guild):
+        # What if the invite is the last invite - is it deleted and cal on_invite_delete?
         message, footer = None, None
         before_invites = self.bot.guild_settings[guild.id].get('invites', [])
         before_dict = {invite.code: invite.uses for invite in before_invites}
