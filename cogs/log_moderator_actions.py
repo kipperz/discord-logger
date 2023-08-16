@@ -126,9 +126,9 @@ class ModeratorActions(commands.Cog):
         target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
 
         messages = {
-            (False, True): f'set nickname for {target} to **{escape_markdown(new_nick)}**',
-            (True, False): f'removed nickname **{escape_markdown(old_nick)}** from {target}',
-            (True, True): f'changed nickname for {target} from **{escape_markdown(old_nick)}** to **{escape_markdown(new_nick)}**'
+            (False, True): f'set nickname for {target} to **{escape_markdown(str(new_nick))}**',
+            (True, False): f'removed nickname **{escape_markdown(str(old_nick))}** from {target}',
+            (True, True): f'changed nickname for {target} from **{escape_markdown(str(old_nick))}** to **{escape_markdown(str(new_nick))}**'
         }
 
         message = messages[(bool(old_nick), bool(new_nick))]
