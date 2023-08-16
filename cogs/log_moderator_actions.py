@@ -82,7 +82,7 @@ class ModeratorActions(commands.Cog):
                 message += f'| Reason: {entry.reason}'
             await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
         elif not entry.after.timed_out_until:
-            message = f'removed timed out from {member_details}`'
+            message = f'removed timed out from {member_details}'
             await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
         else:
             message = f'updated timeout for {member_details} to {timeout_length()}'
