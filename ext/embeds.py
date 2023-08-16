@@ -102,7 +102,7 @@ def audit_log_simple(entry: discord.AuditLogEntry, log_type: dict, log_entry_det
     embed = create_embed(
         description=f'{user} {log_entry_details.action} {log_entry_details.target}',
         image=None,
-        footer=entry.id
+        footer=f'Entry Id: {entry.id}'
     )
     return embed
 def audit_log_text(entry: discord.AuditLogEntry, log_type: dict, log_entry_details, user: discord.abc.User):
