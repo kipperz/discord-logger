@@ -2,7 +2,6 @@ import json
 
 import discord
 from discord.ext import commands
-from discord.utils import escape_markdown
 
 from ext import embeds
 
@@ -34,15 +33,15 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     else:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
-def get_username(user_object: discord.abc.User, esacpe_markdown: bool = False):
+def get_username(user_object: discord.abc.User, escape_markdown: bool = False):
     if isinstance(user_object, discord.Member):
         username = str(user_object._user) #pylint: disable=protected-access
     else:
         username = str(user_object)
 
     if escape_markdown:
-        username = escape_markdown(username)
-    
+        username = discord.utils.escape_markdown(username)
+
     return username
 
 def enabled_check(bot: commands.Bot, guild_id: int, log_type):
