@@ -101,7 +101,7 @@ async def log_moderator_action( # not logging mod actions
 def human_readable_timedelta(delta):
     days = delta.days
     weeks, days = divmod(days, 7)
-    total_seconds = int(delta.total_seconds())
+    total_seconds = round(delta.total_seconds())
     minutes, seconds = divmod(total_seconds, 60)
     hours, minutes = divmod(minutes, 60)
 
