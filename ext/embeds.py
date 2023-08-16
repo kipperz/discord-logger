@@ -137,7 +137,7 @@ def moderator_action_log_text(
 
 def message_edit_log_extended(message: discord.Message, before: str):
     fields= [
-        ['User', f'{message.author.mention}\n{get_username(user_object=message.author, esacpe_markdown=True)}', True],
+        ['User', f'{message.author.mention}\n{get_username(user_object=message.author, escape_markdown=True)}', True],
         ['Channel', f'{message.channel.mention}\n{message.channel.name}', True],
         ['Created At', f'<t:{int(message.created_at.timestamp())}:d>\n<t:{int(message.created_at.timestamp())}:t>', True],
         ['Original Message', before[:1024], False],
