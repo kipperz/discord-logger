@@ -56,7 +56,7 @@ async def database_get_last_message(bot: commands.Bot, guild_id: int, channel_id
         channel = guild.get_channel(channel_id)
         created_at = message_doc.get('created_at', None)
         edited_at = message_doc.get('edited_at', None)
-        content = message_doc.get('content', None)
+        content = message_doc.get('content', '')
         type = discord.MessageType.default
 
     return Message
