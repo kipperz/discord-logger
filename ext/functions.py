@@ -34,11 +34,16 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     else:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
-def get_username(user_object: discord.abc.User):
+def get_username(user_object: discord.abc.User, esacpe_markdown: bool = False):
     if isinstance(user_object, discord.Member):
-        return escape_markdown(str(user_object._user)) #pylint: disable=protected-access
+        username = str(user_object._user) #pylint: disable=protected-access
     else:
-        return escape_markdown(str(user_object))
+        username = str(user_object)
+
+    if escape_markdown:
+        username = escape_markdown(username)
+    
+    return username
 
 def enabled_check(bot: commands.Bot, guild_id: int, log_type):
     guild_settings = bot.guild_settings.get(guild_id, None)

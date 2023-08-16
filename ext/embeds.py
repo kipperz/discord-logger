@@ -41,7 +41,7 @@ def create_embed(
     return discord_embed
 
 def simple_log_message(log_type: dict, user: discord.abc.User, message: str or None, moderator: str or None):
-    log_message = f'`{log_type["label"].upper()}` {user.mention} `{get_username(user)}`'
+    log_message = f'`{log_type["label"].upper()}` {user.mention} `{get_username(user_object=user)}`'
     if message is not None:
         log_message += f' | {message}'
 
@@ -137,7 +137,7 @@ def moderator_action_log_text(
 
 def message_edit_log_extended(message: discord.Message, before: str):
     fields= [
-        ['User', f'{message.author.mention}\n{get_username(message.author)}', True],
+        ['User', f'{message.author.mention}\n{get_username(user_object=message.author, esacpe_markdown=True)}', True],
         ['Channel', f'{message.channel.mention}\n{message.channel.name}', True],
         ['Created At', f'<t:{int(message.created_at.timestamp())}:d>\n<t:{int(message.created_at.timestamp())}:t>', True],
         ['Original Message', before[:1024], False],
@@ -155,7 +155,7 @@ def message_edit_log_extended(message: discord.Message, before: str):
     return embed
 def message_delete_log_extended(message: discord.Message, moderator: discord.User, timestamp):
     if hasattr(message.author, 'id'):
-        fields = [['User', f'{message.author.mention}\n{get_username(message.author)}', True]]
+        fields = [['User', f'{message.author.mention}\n{get_username(user_object=message.author, esacpe_markdown=True)}', True]]
     else:
         fields = [['User', 'unlogged message', True]]
     fields.append(['Channel', f'{message.channel.mention}\n{message.channel.name}', True])
