@@ -155,7 +155,7 @@ def message_edit_log_extended(message: discord.Message, before: str):
     return embed
 def message_delete_log_extended(message: discord.Message, moderator: discord.User, timestamp):
     if hasattr(message.author, 'id'):
-        fields = [['User', f'{message.author.mention}\n{get_username(user_object=message.author, esacpe_markdown=True)}', True]]
+        fields = [['User', f'{message.author.mention}\n{get_username(user_object=message.author, escape_markdown=True)}', True]]
     else:
         fields = [['User', 'unlogged message', True]]
     fields.append(['Channel', f'{message.channel.mention}\n{message.channel.name}', True])
