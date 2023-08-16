@@ -26,6 +26,19 @@ Discord Logger is in early-development and is brought to you by kipperz, streame
 
 - **Voice Chat Logs**: Gain insights into voice chat usage, understanding patterns, durations, and participation.
 
+## Future Features
+
+- **Improved Audit Log Messages**: Send the audit log to a channel with full details
+
+- **Preview Log Formats**: In /setup, preview text, simple, and extended embeds for each log type
+
+- **Attachment Logging**
+
+- **Avatar Logging**
+
+- **Attachment Logging**
+
+
 ## Self-Hosting
 
 Currently, your option for using Discord Logger is to self-host. The bot is designed with multi-server support, making it versatile for various community sizes.
