@@ -25,9 +25,9 @@ class MemberActions(commands.Cog):
     async def on_member_update(self, before: discord.Member, after: discord.Member):
         update_checks = {
             (before.nick, after.nick): lambda: self.nick_handler(before=before, after=after),
-            (before.pending, after.pending): lambda: self.log_member_update_event(log_type='pending', member=after, message='verified'),
-            (before.flags.started_onboarding, after.flags.started_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='started'),
-            (before.flags.completed_onboarding, after.flags.completed_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='completed')
+            (before.pending, after.pending): lambda: self.log_member_update_event(log_type='pending', member=after, message='verified', guild=after.guild),
+            (before.flags.started_onboarding, after.flags.started_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='started', guild=after.guild),
+            (before.flags.completed_onboarding, after.flags.completed_onboarding): lambda: self.log_member_update_event(log_type='onboarding', member=after, message='completed', guild=after.guild)
         }
 
         for (before_attr, after_attr), handler in update_checks.items():
@@ -50,7 +50,7 @@ class MemberActions(commands.Cog):
         if handler:
             await handler()
 
-    async def log_member_update_event(self, log_type: str, member: discord.Member, message: str, guild: discord.Guild = None):
+    async def log_member_update_event(self, log_type: str, member: discord.Member, message: str, guild: discord.Guild):
         if not functions.enabled_check(bot=self.bot, guild_id=guild.id, log_type=log_type):
             return
 
