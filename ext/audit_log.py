@@ -211,14 +211,14 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
     if isinstance(entry.target, discord.object.Object):
         entry, target = await generic_object_converter(bot, guild, entry)
     elif hasattr(entry.target, 'name'):
-        target = f'**{entry.target.name}** `{entry.target.id}`'
+        target = f'**{discord.utils.escape_markdown(entry.target.name)}** `{entry.target.id}`'
     elif hasattr(entry.target, 'id'):
         target = f'`{entry.target.id}`'
     elif entry.target is not None:
         target = str(entry.target)
     else:
         if hasattr(entry.after, 'name'):
-            target = f'**{entry.after.name}** `{entry.after.id}`'
+            target = f'**{discord.utils.escape_markdown(entry.after.name)}** `{entry.after.id}`'
         else:
             target = 'Need handler'
 
@@ -229,7 +229,7 @@ async def audit_log_entry_handler(bot: commands.Bot, guild: discord.Guild, entry
     if entry.action.name in ('message_pin', 'message_unpin', 'message_delete'):
         if isinstance(entry.extra.channel, discord.object.Object):
             entry.extra.channel = bot.get_channel(entry.extra.channel.id)
-        action = action.format(channel=f'**#{entry.extra.channel.name}**')
+        action = action.format(channel=f'**#{discord.utils.escape_markdown(entry.extra.channel.name)}**')
     elif entry.action.name in ('automod_block_message', 'automod_flag_message', 'automod_timeout_member'):
         entry.user = '**AutoMod**'
 
