@@ -13,13 +13,22 @@ from ext.functions import set_guild_invites
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+intents = discord.Intents.none()
+intents.guild_messages = True
+intents.guilds = True
+intents.invites = True
+intents.members = True
+intents.message_content = True
+intents.moderation = True
+intents.voice_states = True
+
 class DiscordBot(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix = config.settings.COMMAND_PREFIX,
-            intents = discord.Intents.all(),
+            intents = intents,
             log_hander = logger,
-            application_id=config.settings.APPLICATION_ID,
+            application_id = config.settings.APPLICATION_ID,
         )
         self.logger = logger
         self.synced = False # still needed?
