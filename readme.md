@@ -1,7 +1,7 @@
 
 # Discord Logger
 
-Discord Logger is an open-source bot designed to meticulously track and log server events in Discord. Written in python using the discord.py library, this bot is easy to setup and can log multiple servers. Coded for use with or without a mongodb database.
+Discord Logger is an open-source bot designed to meticulously log messages and events in Discord without the bloat of an all-in-one bot. Written in python using the discord.py library, this bot is easy to setup and can log multiple servers. Coded for use with or without a mongodb database.
 
 📝 **About**:
 Discord Logger is in early-development and is brought to you by kipperz, streamer [twitch.tv/kipperzGG](https://twitch.tv/kipperzGG) and owner/developer of [discord.gg/kipperz](https://discord.gg/kipperz).

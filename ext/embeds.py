@@ -154,23 +154,29 @@ def message_edit_log_extended(message: discord.Message, before: str):
     )
     return embed
 def message_delete_log_extended(message: discord.Message, moderator: discord.User, timestamp):
+    description = [f'Message deleted in **#{discord.utils.escape_markdown(message.channel.name)}**']
     if hasattr(message.author, 'id'):
-        fields = [['User', f'{message.author.mention}\n{get_username(user_object=message.author, escape_markdown=True)}', True]]
+        author = f'{discord.utils.escape_markdown(message.author.display_name)} - {message.author.id}'
+        author_icon = message.author.display_avatar.url
+        description.append(f' sent by {message.author.mention}\n')
     else:
-        fields = [['User', 'unlogged message', True]]
-    fields.append(['Channel', f'{message.channel.mention}\n{message.channel.name}', True])
+        author = None,
+        author_icon = None
+        description.append('\n')
+
     if message.created_at is not None:
-        fields.append(['Created At', f'<t:{int(message.created_at.timestamp())}:d>\n<t:{int(message.created_at.timestamp())}:t>', True])
-    if message.created_at is not None:
-        fields.append(['Deleted Message', message.content[:1024], False])
+        description.append(f'**Created at**: <t:{int(message.created_at.timestamp())}:F>\n')
 
     if moderator is not None:
-        fields.append(['Deleted by', moderator.mention, False])
+        description.append(f'**Deleted by**: {moderator.mention}')
 
     embed = create_embed(
         color=discord.Color.red(),
-        fields=fields,
-        footer=message.id,
+        author=author,
+        author_icon=author_icon,
+        description=description,
+        fields = [['Deleted Message', message.content[:1023], False]],
+        footer=f'Message ID: {message.id}',
         timestamp=timestamp
     )
     return embed
