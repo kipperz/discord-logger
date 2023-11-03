@@ -43,6 +43,8 @@ class DiscordBot(commands.Bot):
                 pass
 
     async def setup_hook(self):
+        bot.remove_command('help')
+
         ignore_items = ['__pycache__']
         for item in os.listdir('cogs'):
             if item in ignore_items:
@@ -57,13 +59,22 @@ class DiscordBot(commands.Bot):
     async def on_ready(self):
         await self.wait_until_ready()
 
+        @bot.event
+        async def on_message(message):
+            if message.author == bot.user:
+                return
+            await bot.process_commands(message)
+
+        @bot.check
+        async def globally_block_dms(ctx):
+            return ctx.guild is not None
+
         for guild in self.guilds:
             await set_guild_invites(self, guild)
 
         self.logger.critical('logged in as %s | %s', self.user.name, self.user.id)
 
 bot = DiscordBot()
-bot.remove_command('help')
 
 class LoggingHandler(logging.Handler):
     def __init__(self, stdout, discord_bot, *args, **kwargs):
@@ -88,16 +99,6 @@ class LoggingHandler(logging.Handler):
 logger_handler = LoggingHandler(sys.stdout, bot)
 logger_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(logger_handler)
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    await bot.process_commands(message)
-
-@bot.check
-async def globally_block_dms(ctx):
-    return ctx.guild is not None
 
 if __name__ == '__main__':
     bot.run(config.secrets.TOKEN)
