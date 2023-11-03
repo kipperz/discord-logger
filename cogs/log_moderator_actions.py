@@ -176,7 +176,10 @@ class ModeratorActions(commands.Cog):
         if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
             return
 
-        if entry.user.bot: # Member assigned Premium role - this is probably integration roles
+        if not entry.user:  # Member assigned Premium role - this is probably integration roles
+            return
+
+        if entry.user.bot:
             return
 
         after_roles = [role.mention for role in entry.after.roles]
