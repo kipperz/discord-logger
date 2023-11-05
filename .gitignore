@@ -2,4 +2,3 @@ __pycache__/
 *.pyc
 .pylintrc
 .vscode/
-test.py
