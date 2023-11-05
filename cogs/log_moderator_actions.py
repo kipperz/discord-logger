@@ -187,9 +187,9 @@ class ModeratorActions(commands.Cog):
         target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
 
         if after_roles:
-            message = f'removed {len(after_roles)} role(s) from {target}: {", ".join(after_roles)}'
+            message = f'granted {len(after_roles)} role(s) from {target}: {", ".join(after_roles)}'
         elif before_roles:
-            message = f'granted {target} {len(before_roles)} role(s): {", ".join(before_roles)}'
+            message = f'removed {target} {len(before_roles)} role(s): {", ".join(before_roles)}'
 
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
