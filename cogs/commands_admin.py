@@ -100,7 +100,7 @@ class AdminCommands(commands.Cog):
 
                 for log_type_setting, settings in guild_settings[str(interaction.guild.id)].items():
                     if settings['category'] == log_type:
-                        guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type_setting, channel, disabled, icon_url, label, message_format, ignore_channel.id)
+                        guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type_setting, channel, disabled, icon_url, label, message_format, ignore_channel.id if ignore_channel else None)
 
                 category_label = self.create_category_label(log_type)
 
@@ -116,7 +116,7 @@ class AdminCommands(commands.Cog):
                     await interaction.response.send_message(f'Error: missing permissions in {channel.mention}', ephemeral=True)
                     return
 
-                guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type, channel, disabled, icon_url, label, message_format, ignore_channel.id)
+                guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type, channel, disabled, icon_url, label, message_format, ignore_channel.id if ignore_channel else None)
 
                 category_label = self.create_category_label(guild_settings[str(interaction.guild.id)][log_type]['category'])
 
