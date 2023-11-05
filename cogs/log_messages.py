@@ -20,7 +20,7 @@ class MessageLog(commands.Cog):
             return
 
         log_type = 'delete'
-        if not functions.enabled_check(bot=self.bot, guild_id=message.guild.id, log_type=log_type):
+        if not functions.enabled_check(bot=self.bot, guild_id=message.guild.id, log_type=log_type, channel_id=message.channel.id):
             return
 
         if not self.pre_checks(message):
@@ -34,11 +34,10 @@ class MessageLog(commands.Cog):
             return
 
         log_type = 'delete'
-        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type):
+        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type, channel_id=payload.channel_id):
             return
 
         timestamp = datetime.now(timezone.utc)
-
 
         if payload.cached_message is None:
             message = await database.database_get_last_message(bot=self.bot, guild_id=payload.guild_id, channel_id=payload.channel_id, message_id=payload.message_id)
@@ -52,6 +51,7 @@ class MessageLog(commands.Cog):
             moderator = await self.get_moderator(message)
         else:
             moderator = None
+
         embed = embeds.message_delete_log_extended(message=message, moderator=moderator, timestamp=timestamp)
         await self.send_log(guild_id=payload.guild_id, log_type=log_type, embed=embed)
         database.database_delete_message(message)
@@ -62,7 +62,7 @@ class MessageLog(commands.Cog):
             return
 
         log_type = 'edit'
-        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type):
+        if not functions.enabled_check(bot=self.bot, guild_id=payload.guild_id, log_type=log_type, channel_id=payload.channel_id):
             return
 
         try:

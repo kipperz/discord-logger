@@ -44,12 +44,15 @@ def get_username(user_object: discord.abc.User, escape_markdown: bool = False):
 
     return username
 
-def enabled_check(bot: commands.Bot, guild_id: int, log_type):
+def enabled_check(bot: commands.Bot, guild_id: int, log_type, channel_id: int = None):
     guild_settings = bot.guild_settings.get(guild_id, None)
     if not guild_settings:
         return False
 
     if guild_settings[log_type]['disabled']:
+        return False
+
+    if channel_id in guild_settings[log_type]['ignore_channels']:
         return False
 
     return True

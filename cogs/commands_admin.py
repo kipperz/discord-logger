@@ -56,6 +56,7 @@ class AdminCommands(commands.Cog):
     ])
     @discord.app_commands.describe(icon_url='URL for icons in certain log messages')
     @discord.app_commands.describe(disabled='Enable or disable logging')
+    @discord.app_commands.describe(ignore_channel='Add a text channel to the message logging ignore list')
     async def setup(
         self,
         interaction: discord.Interaction,
@@ -64,7 +65,8 @@ class AdminCommands(commands.Cog):
         label: str = None,
         message_format: str = None,
         icon_url: str = None,
-        disabled: bool = False
+        disabled: bool = False,
+        ignore_channel: discord.TextChannel = None
     ):
         if log_type == '' or log_type not in self.log_settings.values():
             await interaction.response.send_message('Error: Please select a valid category or log type', ephemeral=True)
@@ -72,6 +74,10 @@ class AdminCommands(commands.Cog):
 
         if icon_url == 0:
             await interaction.response.send_message('Error: Invalid icon URL', ephemeral=True)
+            return
+
+        if ignore_channel and log_type not in ['message_log', 'delete', 'edit']:
+            await interaction.response.send_message('Error: Ignore Channel can only be enabled for Message Logs', ephemeral=True)
             return
 
         guild_settings = functions.get_guild_settings()
@@ -83,34 +89,34 @@ class AdminCommands(commands.Cog):
             category_label = 'AUDIT LOG'
 
         else:
-            if log_type in functions.guild_settings_categories:
+            if log_type in functions.guild_settings_categories: # Category Settings
                 if not disabled and not channel:
                     await interaction.response.send_message('Error: A text channel must be provided when a category is selected', ephemeral=True)
                     return
 
-                if 1 == 2: # check for channel permissions
+                if 1 == 2: # UPDATE check for channel permissions
                     await interaction.response.send_message(f'Error: missing permissions in {channel.mention}', ephemeral=True)
                     return
 
                 for log_type_setting, settings in guild_settings[str(interaction.guild.id)].items():
                     if settings['category'] == log_type:
-                        guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type_setting, channel, disabled, icon_url, label, message_format)
+                        guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type_setting, channel, disabled, icon_url, label, message_format, ignore_channel.id)
 
                 category_label = self.create_category_label(log_type)
 
-            else:
+            else: # Individual Log Settings
                 stored_channel_id = guild_settings[str(interaction.guild.id)][log_type]['channel_id']
                 if not disabled and not channel and not stored_channel_id:
                     await interaction.response.send_message('Error: A text channel must be provided if a setting is enabled', ephemeral=True)
                     return
 
-                if 1 == 2: # check for channel permissions
+                if 1 == 2: # UPDATE check for channel permissions
                     if not channel:
                         channel = self.bot.get_channel(int(stored_channel_id))
                     await interaction.response.send_message(f'Error: missing permissions in {channel.mention}', ephemeral=True)
                     return
 
-                guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type, channel, disabled, icon_url, label, message_format)
+                guild_settings = self.configure_log_type(guild_settings, interaction.guild.id, log_type, channel, disabled, icon_url, label, message_format, ignore_channel.id)
 
                 category_label = self.create_category_label(guild_settings[str(interaction.guild.id)][log_type]['category'])
 
@@ -120,7 +126,7 @@ class AdminCommands(commands.Cog):
 
         embeds = self.guild_settings_to_embeds(guild_settings=guild_settings[str(interaction.guild.id)])
         await interaction.response.send_message(embed=discord.Embed.from_dict(embeds[category_label]), ephemeral=True, view=self.GuildSettings(embeds, category_label))
-        # send view with select to preview messages
+        # UPDATE send view with select to preview messages
 
     @setup.autocomplete('log_type')
     async def log_type_autocomplete(self, interaction: discord.Interaction, current: str) -> list[discord.app_commands.Choice[str]]:
@@ -134,7 +140,7 @@ class AdminCommands(commands.Cog):
             for log_type in list(self.log_settings.keys())[start_index:] if current.lower() in log_type.lower()
         ][:end_index]
 
-    def configure_log_type(self, guild_settings, guild_id, log_type, channel, disabled, icon_url, label, message_format):
+    def configure_log_type(self, guild_settings, guild_id, log_type, channel, disabled, icon_url, label, message_format, ignore_channel):
         if channel:
             guild_settings[str(guild_id)][log_type]['channel_id'] = str(channel.id)
         guild_settings[str(guild_id)][log_type]['disabled'] = disabled
@@ -144,6 +150,8 @@ class AdminCommands(commands.Cog):
             guild_settings[str(guild_id)][log_type]['label'] = label
         if message_format:
             guild_settings[str(guild_id)][log_type]['message_format'] = message_format
+        if ignore_channel:
+            guild_settings[str(guild_id)][log_type]['ignore_channels'].append(ignore_channel)
         return guild_settings
 
     def guild_settings_to_embeds(self, guild_settings):
@@ -156,7 +164,13 @@ class AdminCommands(commands.Cog):
                 if items['disabled']:
                     description.append(f'`{category_setting} log` **disabled**\n\n')
                 else:
-                    description.append(f'`{category_setting} log`\n> **Channel**: <#{items["channel_id"]}>\n> **Label**: {items["label"]}\n> **Message Format**: {items["message_format"]}\n> {"Icon" if items["icon_url"] else "No Icon"}\n\n')
+                    description.append(f'`{category_setting} log`\n> **Channel**: <#{items["channel_id"]}>\n> **Label**: {items["label"]}\n> **Message Format**: {items["message_format"]}\n> {"Icon" if items["icon_url"] else "No Icon"}')
+                    if items["ignore_channels"]:
+                        description.append('\n> **Ignored Channels**: ')
+                        for channel_id in items["ignore_channels"]:
+                            description.append(f'<#{channel_id}> ')
+                    description.append('\n\n')
+
             category_label = self.create_category_label(category)
             embed = functions.embeds.create_embed(author=category_label, description=description)
             embeds[category_label] = embed.to_dict()
