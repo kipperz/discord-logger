@@ -1,2 +1,2 @@
-from config import secrets
-from config import settings
+from . import secrets
+from . import settings
