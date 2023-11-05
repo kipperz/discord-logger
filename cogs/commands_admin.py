@@ -91,7 +91,7 @@ class AdminCommands(commands.Cog):
         else:
             if log_type in functions.guild_settings_categories: # Category Settings
                 if not disabled and not channel:
-                    await interaction.response.send_message('Error: A text channel must be provided when a category is selected', ephemeral=True)
+                    await interaction.response.send_message('Error: A text channel must be provided when updating category settings', ephemeral=True)
                     return
 
                 if 1 == 2: # UPDATE check for channel permissions
