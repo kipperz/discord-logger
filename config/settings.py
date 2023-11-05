@@ -1,4 +1,4 @@
 COMMAND_PREFIX = '^'
-DEV_CHANNEL = 'channel_id'
+DEV_CHANNEL = 1234567890
 APPLICATION_ID = 'bot_application_id'
 DEVELOPER_IDS = []
