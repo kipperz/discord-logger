@@ -1,16 +1,20 @@
+import asyncio
 import typing
 
 import discord
 from discord.ext import commands
 
+from config.settings import DEVELOPER_IDS
 
 class DevCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.command()
-    @commands.has_guild_permissions(administrator=True)
     async def sync(self, ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*", "^", "x"]] = None) -> None:
+        if ctx.author.id not in DEVELOPER_IDS:
+            return
+
         if not guilds:
             if spec == "~":
                 synced = await ctx.bot.tree.sync(guild=ctx.guild)
@@ -56,11 +60,37 @@ class DevCommands(commands.Cog):
         # !sync ^ -> clears all commands from the current guild target and syncs (removes guild commands)
         # !sync id_1 id_2 -> syncs guilds with id 1 and 2
 
+    async def async_run(self, cmd):
+        proc = await asyncio.create_subprocess_shell(
+            cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
+
+        return proc.returncode
+
     @commands.command()
-    @commands.has_guild_permissions(administrator=True)
-    async def test(self, ctx):
-        print(self.bot.guild_settings)
-        print(self.bot.guild_settings[ctx.guild.id]['join']['channel_id'])
+    async def git(self, ctx: commands.Context, *, action):
+        if ctx.author.id not in DEVELOPER_IDS:
+            return
+
+        actions = ['pull']
+        if action not in actions:
+            await ctx.send('Invalid action')
+        else:
+            code = await self.async_run(f'git {action}')
+            await ctx.send(f'Return code: {code}')
+
+    @commands.command()
+    async def systemctl(self, ctx: commands.Context, *, action):
+        if ctx.author.id not in DEVELOPER_IDS:
+            return
+
+        actions = ['restart', 'stop', 'kill']
+        if action not in actions:
+            await ctx.send('Invalid action')
+        else:
+            code = await self.async_run(f'systemctl {action}')
+            await ctx.send(f'Return code: {code}')
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(DevCommands(bot))
