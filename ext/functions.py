@@ -22,6 +22,7 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     guild_settings = get_guild_settings()
 
     if str(guild.id) in guild_settings:
+        bot.logger.warning('logging enabled for guild %s %s', guild, guild.id)
         bot.guild_settings[guild.id] = guild_settings[str(guild.id)]
 
         try:
