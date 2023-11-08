@@ -11,7 +11,7 @@ from ext.functions import set_guild_invites
 
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 
 intents = discord.Intents.none()
 intents.guild_messages = True
