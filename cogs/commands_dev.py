@@ -69,7 +69,7 @@ class DevCommands(commands.Cog):
         return proc.returncode
 
     @commands.command()
-    async def git(self, ctx: commands.Context, *, action):
+    async def git(self, ctx: commands.Context, action: str):
         if ctx.author.id not in DEVELOPER_IDS:
             return
 
@@ -81,7 +81,7 @@ class DevCommands(commands.Cog):
             await ctx.send(f'Return code: {code}')
 
     @commands.command()
-    async def systemctl(self, ctx: commands.Context, *, action):
+    async def systemctl(self, ctx: commands.Context, action: str, service: str):
         if ctx.author.id not in DEVELOPER_IDS:
             return
 
@@ -89,7 +89,7 @@ class DevCommands(commands.Cog):
         if action not in actions:
             await ctx.send('Invalid action')
         else:
-            code = await self.async_run(f'systemctl {action}')
+            code = await self.async_run(f'systemctl {action} {service}')
             await ctx.send(f'Return code: {code}')
 
 async def setup(bot: commands.Bot):
