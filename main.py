@@ -13,6 +13,9 @@ from ext.functions import set_guild_invites
 logger = logging.getLogger()
 logger.setLevel(logging.WARNING)
 
+discord_logger = logging.getLogger('discord')
+discord_logger.setLevel(logging.WARNING)
+
 intents = discord.Intents.none()
 intents.guild_messages = True
 intents.guilds = True
