@@ -60,25 +60,35 @@ class DevCommands(commands.Cog):
         # !sync ^ -> clears all commands from the current guild target and syncs (removes guild commands)
         # !sync id_1 id_2 -> syncs guilds with id 1 and 2
 
-    async def async_run(self, cmd):
+    async def execute_command_on_vps(self, command: str):
         proc = await asyncio.create_subprocess_shell(
-            cmd,
+            command,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE)
 
-        return proc.returncode
+        stdout, stderr = await proc.communicate()
+
+        content = f'**{command!r}** exited with return code: {proc.returncode}'
+        if stdout:
+            content += f'\n**stdout**\n```{stdout.decode()}```'
+        if stderr and not command.startswith('git'):
+            content += f'\n\n**stderr**\n```{stderr.decode()}```'
+
+        return content
 
     @commands.command()
-    async def git(self, ctx: commands.Context, action: str):
+    async def git(self, ctx: commands.Context, command: str):
         if ctx.author.id not in DEVELOPER_IDS:
             return
 
-        actions = ['pull']
-        if action not in actions:
+        git_commands = ['pull']
+        if command not in git_commands:
             await ctx.send('Invalid action')
+
         else:
-            code = await self.async_run(f'git {action}')
-            await ctx.send(f'Return code: {code}')
+            content = await self.execute_command_on_vps(f'git {command}')
+            await ctx.send(content)
+            await ctx.message.delete()
 
     @commands.command()
     async def systemctl(self, ctx: commands.Context, action: str, service: str):
@@ -89,8 +99,9 @@ class DevCommands(commands.Cog):
         if action not in actions:
             await ctx.send('Invalid action')
         else:
-            code = await self.async_run(f'systemctl {action} {service}')
-            await ctx.send(f'Return code: {code}')
+            content = await self.execute_command_on_vps(f'systemctl {action} {service}')
+            await ctx.send(content)
+            await ctx.message.delete()
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(DevCommands(bot))
