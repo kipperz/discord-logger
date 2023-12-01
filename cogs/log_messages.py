@@ -52,6 +52,9 @@ class MessageLog(commands.Cog):
         else:
             moderator = None
 
+        # ERROR: message.channel = None
+        # Union[TextChannel, StageChannel, VoiceChannel, Thread, DMChannel, GroupChannel, PartialMessageable]
+
         embed = embeds.message_delete_log_extended(message=message, moderator=moderator, timestamp=timestamp)
         await self.send_log(guild_id=payload.guild_id, log_type=log_type, embed=embed)
         database.database_delete_message(message)
@@ -83,7 +86,7 @@ class MessageLog(commands.Cog):
         await self.send_log(guild_id=payload.guild_id, log_type=log_type, embed=embed)
         database.database_insert_message(message)
 
-    async def get_moderator(self, message):
+    async def get_moderator(self, message: discord.Message):
         moderator = None
         after = datetime.now(timezone.utc) - timedelta(seconds=5)
         if message.author is not None:
@@ -93,7 +96,7 @@ class MessageLog(commands.Cog):
                     break
         return moderator
 
-    async def send_log(self, guild_id, log_type, embed):
+    async def send_log(self, guild_id: int, log_type: str, embed: discord.Embed):
         channel_id = int(self.bot.guild_settings[guild_id][log_type]['channel_id'])
         channel = self.bot.get_channel(channel_id)
         if channel is None:
@@ -101,7 +104,7 @@ class MessageLog(commands.Cog):
         else:
             await channel.send(embed=embed)
 
-    def pre_checks(self, message):
+    def pre_checks(self, message: discord.Message):
         if message.author.bot is True:
             return
 
@@ -109,6 +112,9 @@ class MessageLog(commands.Cog):
             return
 
         if message.type != discord.MessageType.default:
+            return
+
+        if not message.channel:
             return
 
         return True
