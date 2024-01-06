@@ -100,6 +100,7 @@ class LoggingHandler(logging.Handler):
         self.stdout.write(self.format(record) + '\n')
 
 logger_handler = LoggingHandler(sys.stdout, bot)
+logger_handler.setLevel(logging.WARNING)
 logger_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)-8s %(name)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
 logger.addHandler(logger_handler)
 
