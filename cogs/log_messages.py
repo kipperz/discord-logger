@@ -73,7 +73,7 @@ class MessageLog(commands.Cog):
             return
 
         try:
-            message = channel.fetch_message(payload.message_id)
+            message = await channel.fetch_message(payload.message_id)
         except discord.NotFound:
             return
 
