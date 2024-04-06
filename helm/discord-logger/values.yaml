@@ -1,0 +1,290 @@
+# Default values for discord-logger.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+secret:
+  token: ""
+  mongoUri: ""
+  # Overrides token and mongoUri
+  # Should contain an entry in the following format:
+  # secrets: |
+  #   TOKEN = 'token'
+  #   MONGO_URI = 'mongoUri'
+  existingSecret: ""
+
+settings: |-
+  COMMAND_PREFIX = '^'
+  DEV_CHANNEL = 1234567890
+  APPLICATION_ID = 'bot_application_id'
+  DEVELOPER_IDS = []
+  INVISIBLE_STATUS = False
+  CUSTOM_STATUS = []
+  CUSTOM_STATUS_DELAY = 10
+
+guildSettings:
+  # The guild ID to use for settings
+  template:
+    audit:
+      category: audit_log
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: audit
+      message_format: simple
+    delete:
+      category: message_log
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: delete
+      message_format: simple
+    edit:
+      category: message_log
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: edit
+      message_format: simple
+    join:
+      category: join_part
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: join
+      message_format: simple
+    moderator_ban:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_ban
+      message_format: simple
+    moderator_deafen:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_deafen
+      message_format: simple
+    moderator_delete:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_delete
+      message_format: simple
+    moderator_disconnect:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_disconnect
+      message_format: simple
+    moderator_kick:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_kick
+      message_format: simple
+    moderator_move:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_move
+      message_format: simple
+    moderator_mute:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_mute
+      message_format: simple
+    moderator_nick:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_nick
+      message_format: simple
+    moderator_pin:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_pin
+      message_format: simple
+    moderator_role:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_role
+      message_format: simple
+    moderator_timeout:
+      category: moderator_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: moderator_timeout
+      message_format: simple
+    nick:
+      category: member_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: nick
+      message_format: simple
+    onboarding:
+      category: member_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: onboarding
+      message_format: simple
+    part:
+      category: join_part
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: part
+      message_format: simple
+    pending:
+      category: member_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: pending
+      message_format: simple
+    rejoin:
+      category: join_part
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: rejoin
+      message_format: simple
+    role:
+      category: member_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: role
+      message_format: simple
+    username:
+      category: member_actions
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: username
+      message_format: simple
+    voice:
+      category: voice
+      channel_id: ""
+      disabled: true
+      icon_url: null
+      ignore_channels: []
+      label: voice
+      message_format: simple
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
