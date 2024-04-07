@@ -39,6 +39,29 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: guild_settings
+              mountPath: /app/config/guild_settings.json
+            - name: settings
+              mountPath: /app/config/settings.py
+            - name: secrets
+              mountPath: /app/config/secrets.py
+      volumes:
+        - name: guild_settings
+          configMap:
+            name: {{ include "discord-logger.fullname" . }}-guild-settings
+        - name: settings
+          configMap:
+            name: {{ include "discord-logger.fullname" . }}-settings
+        {{- if (.Values.secret).existingSecret }}
+        - name: secrets
+          secret:
+            secretName: {{ .Values.secret.existingSecret }}
+        {{- else }}
+        - name: secrets
+          secret:
+            secretName: {{ include "discord-logger.fullname" . }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

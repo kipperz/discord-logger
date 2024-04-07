@@ -19,19 +19,19 @@ secret:
   mongoUri: ""
   # Overrides token and mongoUri
   # Should contain an entry in the following format:
-  # secrets: |
+  # secrets: |-
   #   TOKEN = 'token'
   #   MONGO_URI = 'mongoUri'
   existingSecret: ""
 
-settings: |-
-  COMMAND_PREFIX = '^'
-  DEV_CHANNEL = 1234567890
-  APPLICATION_ID = 'bot_application_id'
-  DEVELOPER_IDS = []
-  INVISIBLE_STATUS = False
-  CUSTOM_STATUS = []
-  CUSTOM_STATUS_DELAY = 10
+settings:
+  commandPrefix: "^"
+  devChannel: 1234567890
+  applicationId: "bot_application_id"
+  developerIds: []
+  invisibleStatus: false
+  customStatus: []
+  customStatusDelay: 10
 
 guildSettings:
   # The guild ID to use for settings
