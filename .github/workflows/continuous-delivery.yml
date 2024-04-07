@@ -53,6 +53,7 @@ jobs:
             type=ref,event=branch
 
     - name: Build and push container image from tag
+      if: github.event_name == 'push'
       id: push_tag
       uses: docker/build-push-action@v5
       with:
@@ -63,6 +64,7 @@ jobs:
         labels: ${{ steps.tag_meta.outputs.labels }}
 
     - name: Build and push container image from branch
+      id: push_branch
       if: github.event_name == 'workflow_dispatch'
       uses: docker/build-push-action@v5
       with:

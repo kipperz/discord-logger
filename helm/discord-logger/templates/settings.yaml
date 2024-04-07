@@ -9,4 +9,10 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 data:
   settings: |-
-    {{- .Values.settings | nindent 4 }}
+    COMMAND_PREFIX = {{ (.Values.settings).commandPrefix | squote }}
+    DEV_CHANNEL = {{ (.Values.settings).devChannel | int }}
+    APPLICATION_ID = {{ squote (.Values.settings).applicationId }}
+    DEVELOPER_IDS = {{ (.Values.settings).developerIds | toJson }}
+    INVISIBLE_STATUS = {{ (.Values.settings).invisibleStatus | toString | title }}
+    CUSTOM_STATUS = {{ (.Values.settings).customStatus | toJson }}
+    CUSTOM_STATUS_DELAY = {{ (.Values.settings).customStatusDelay | int }}
