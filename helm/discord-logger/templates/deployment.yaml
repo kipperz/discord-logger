@@ -41,7 +41,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: guild-settings
-              mountPath: /app/config/guild_settings.json
+              mountPath: /app/config
             - name: settings
               mountPath: /app/config/settings.py
             - name: secrets
@@ -50,17 +50,29 @@ spec:
         - name: guild-settings
           configMap:
             name: {{ include "discord-logger.fullname" . }}-guild-settings
+            items:
+              - key: guild_settings
+                path: guild_settings.json
         - name: settings
           configMap:
             name: {{ include "discord-logger.fullname" . }}-settings
+            items:
+              - key: settings
+                path: settings.py
         {{- if (.Values.secret).existingSecret }}
         - name: secrets
           secret:
             secretName: {{ .Values.secret.existingSecret }}
+            items:
+              - key: secrets
+                path: secrets.py
         {{- else }}
         - name: secrets
           secret:
             secretName: {{ include "discord-logger.fullname" . }}
+            items:
+              - key: secrets
+                path: secrets.py
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
