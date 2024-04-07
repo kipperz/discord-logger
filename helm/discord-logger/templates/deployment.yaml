@@ -43,9 +43,9 @@ spec:
             - name: guild-settings
               mountPath: /app/config
             - name: settings
-              mountPath: /app/config/settings.py
+              mountPath: /app/config
             - name: secrets
-              mountPath: /app/config/secrets.py
+              mountPath: /app/config
       volumes:
         - name: guild-settings
           configMap:
