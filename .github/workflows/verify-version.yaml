@@ -7,6 +7,9 @@ on:
     paths:
       - 'helm/**'
 
+env:
+  CHART_DIRNAME: helm
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -26,7 +29,7 @@ jobs:
 
       - name: Verify Chart Release Versions
         run: |
-          for chart in charts/*; do
+          for chart in ${{ env.CHART_DIRNAME }}/*; do
             diff=$(git --no-pager diff origin/${{ github.base_ref }}...origin/${{ github.head_ref }} "$chart")
             helm_version=$(helm show chart "$chart" | yq '.version' -)
             if [[ -n $diff ]] && [[ ! $(echo $diff | grep "version: $version") ]]; then
