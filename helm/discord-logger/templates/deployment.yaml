@@ -40,14 +40,14 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: guild_settings
+            - name: guild-settings
               mountPath: /app/config/guild_settings.json
             - name: settings
               mountPath: /app/config/settings.py
             - name: secrets
               mountPath: /app/config/secrets.py
       volumes:
-        - name: guild_settings
+        - name: guild-settings
           configMap:
             name: {{ include "discord-logger.fullname" . }}-guild-settings
         - name: settings
