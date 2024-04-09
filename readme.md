@@ -7,6 +7,7 @@ Discord Logger is an open-source bot designed to meticulously log messages and e
 Discord Logger is in early-development and is brought to you by kipperz, streamer [twitch.tv/kipperzGG](https://twitch.tv/kipperzGG) and owner/developer of [discord.gg/kipperz](https://discord.gg/kipperz).
 
 ## Beta Release
+
 - **Version 0.9.3**: Discord Logger is not yet ready for full deployment. Ahead of our 1.0 release, we're improving message formats and testing thoroughly. To assist in testing, contact kipperz on Discord.
 
 ## Features
@@ -38,7 +39,6 @@ Discord Logger is in early-development and is brought to you by kipperz, streame
 
 - **Attachment Logging**
 
-
 ## Self-Hosting
 
 Currently, your option for using Discord Logger is to self-host. The bot is designed with multi-server support, making it versatile for various community sizes.
@@ -46,7 +46,8 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
 ### Installation & Setup
 
 1. Clone this repository:
-   ```
+
+   ```bash
    git clone https://github.com/kipperz/discord-logger.git
    ```
 
@@ -57,7 +58,8 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
 4. Modify config/guild_settings.json
 
 5. Launch the bot:
-   ```
+
+   ```python
    python main.py
    ```
 

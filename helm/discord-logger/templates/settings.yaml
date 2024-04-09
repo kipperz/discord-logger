@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "discord-logger.fullname" . }}-settings
+  labels:
+    app.kubernetes.io/name: {{ include "discord-logger.name" . }}
+    helm.sh/chart: {{ include "discord-logger.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  settings: |-
+    COMMAND_PREFIX = {{ (.Values.settings).commandPrefix | squote }}
+    DEV_CHANNEL = {{ (.Values.settings).devChannel | int }}
+    APPLICATION_ID = {{ squote (.Values.settings).applicationId }}
+    DEVELOPER_IDS = {{ (.Values.settings).developerIds | toJson }}
+    INVISIBLE_STATUS = {{ (.Values.settings).invisibleStatus | toString | title }}
+    CUSTOM_STATUS = {{ (.Values.settings).customStatus | toJson }}
+    CUSTOM_STATUS_DELAY = {{ (.Values.settings).customStatusDelay | int }}

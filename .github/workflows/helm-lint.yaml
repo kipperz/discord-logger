@@ -1,0 +1,33 @@
+name: Helm Lint
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - helm/**
+
+env:
+  CHART_DIRNAME: helm
+
+jobs:
+  helm_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Helm
+        id: install
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+          rm -rf get_helm.sh
+
+      - name: Helm Lint
+        id: lint
+        run: |
+          for chart in ${{ env.CHART_DIRNAME }}/*; do
+            if [ -d "$chart" ]; then
+                helm lint --quiet --strict "$chart" -f "$chart/values.yaml"
+            fi
+          done
