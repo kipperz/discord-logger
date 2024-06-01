@@ -1,4 +1,7 @@
+from typing import Union
+
 import discord
+
 from ext.functions import get_username
 
 
@@ -40,7 +43,7 @@ def create_embed(
 
     return discord_embed
 
-def simple_log_message(log_type: dict, user: discord.abc.User, message: str or None, moderator: str or None):
+def simple_log_message(log_type: dict, user: discord.abc.User, message: Union[str, None], moderator: Union[str, None]):
     log_message = f'`{log_type["label"].upper()}` {user.mention} `{get_username(user_object=user)}`'
     if message is not None:
         log_message += f' | {message}'
@@ -53,9 +56,9 @@ def simple_log_message(log_type: dict, user: discord.abc.User, message: str or N
 def general_log_extended( # WIP - do not use
     log_type: dict,
     user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
+    message: Union[str, None],
+    footer: Union[str, None],
+    moderator: Union[str, None]
 ):
     description = f'**User:** {user.mention} `{get_username(user)}`'
     if message is not None:
@@ -73,18 +76,18 @@ def general_log_extended( # WIP - do not use
 def general_log_simple(
     log_type: dict,
     user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
+    message: Union[str, None],
+    footer: Union[str, None],
+    moderator: Union[str, None]
 ):
     log_message = simple_log_message(log_type=log_type, user=user, message=message, moderator=moderator)
     return create_embed(description=log_message, image=None, footer=footer)
 def general_log_text(
     log_type: dict,
     user: discord.abc.User,
-    message: str or None,
-    footer: str or None,
-    moderator: str or None
+    message: Union[str, None],
+    footer: Union[str, None],
+    moderator: Union[str, None]
 ):
     log_message = simple_log_message(log_type=log_type, user=user, message=message, moderator=moderator)
     if footer is not None:

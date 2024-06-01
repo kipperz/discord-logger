@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 
 import discord
 from discord.ext import commands
@@ -63,7 +64,7 @@ def recursive_object_to_dict(obj, depth=0, max_depth=7):
     return result
 
 class AuditLogEntryLogMessage:
-    def __init__(self, user: discord.Member or str, action: str, target: str):
+    def __init__(self, user: Union[discord.Member, str], action: str, target: str):
         if not isinstance(user, discord.Member) and user != '**AutoMod**':
             raise ValueError('user must be discord.Member or AutoMod')
         if not isinstance(action, str):

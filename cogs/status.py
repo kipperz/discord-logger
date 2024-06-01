@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 
 from config.settings import INVISIBLE_STATUS, CUSTOM_STATUS, CUSTOM_STATUS_DELAY
 
+
 class CommandsStatus(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot

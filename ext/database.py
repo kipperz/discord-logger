@@ -1,3 +1,5 @@
+from typing import Union
+
 import discord
 from discord.ext import commands
 from pymongo import DESCENDING, MongoClient
@@ -34,7 +36,7 @@ def database_insert_audit_log_entry(entry: discord.AuditLogEntry):
     else:
         print('new log not inserted')
 
-def database_delete_message(message: discord.Message or classmethod): # Marks message as deleted in the message docs
+def database_delete_message(message: Union[discord.Message, classmethod]): # Marks message as deleted in the message docs
     result = log_database[str(message.guild.id)][str(message.channel.id)].update_many({'message_id': str(message.id)}, {'$set': {'deleted': True}})
     if result is None:
         pass # error logger

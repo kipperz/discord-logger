@@ -6,3 +6,4 @@ from . import log_member_actions
 from . import log_messages
 from . import log_moderator_actions
 from . import log_voice
+from . import status
