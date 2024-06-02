@@ -31,7 +31,7 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
             bot.guild_settings[guild.id]['invites'] = []
             bot.logger.warning('not tracking invites for guild %s %s - Missing Permissions', guild, guild.id)
 
-    else:
+    elif not bot.connected:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
 def get_username(user_object: discord.abc.User, escape_markdown: bool = False):
