@@ -22,14 +22,20 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     guild_settings = get_guild_settings()
 
     if str(guild.id) in guild_settings:
-        bot.logger.warning('logging enabled for guild %s %s', guild, guild.id)
         bot.guild_settings[guild.id] = guild_settings[str(guild.id)]
 
         try:
             bot.guild_settings[guild.id]['invites'] = await guild.invites()
+            if not bot.connected:
+                bot.logger.warning('logging enabled for guild %s %s', guild, guild.id)
+
         except discord.Forbidden:
             bot.guild_settings[guild.id]['invites'] = []
-            bot.logger.warning('not tracking invites for guild %s %s - Missing Permissions', guild, guild.id)
+            if not bot.connected:
+                bot.logger.warning('not tracking invites for guild %s %s - Missing Permissions', guild, guild.id)
+
+        if not bot.connected:
+            bot.logger.warning('logging enabled for guild %s %s', guild, guild.id)
 
     elif not bot.connected:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
