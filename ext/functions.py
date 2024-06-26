@@ -40,17 +40,6 @@ async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
     elif not bot.connected:
         bot.logger.warning('logging disabled for guild %s %s - No Settings', guild, guild.id)
 
-def get_username(user_object: discord.abc.User, escape_markdown: bool = False):
-    if isinstance(user_object, discord.Member):
-        username = str(user_object._user) #pylint: disable=protected-access
-    else:
-        username = str(user_object)
-
-    if escape_markdown:
-        username = discord.utils.escape_markdown(username)
-
-    return username
-
 def enabled_check(bot: commands.Bot, guild_id: int, log_type, channel_id: int = None):
     guild_settings = bot.guild_settings.get(guild_id, None)
     if not guild_settings:

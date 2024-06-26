@@ -4,7 +4,7 @@ from typing import Union
 import discord
 from discord.ext import commands
 
-from ext import embeds, functions
+from ext import embeds, get_username
 
 
 def recursive_object_to_dict(obj, depth=0, max_depth=7):
@@ -128,11 +128,11 @@ async def generic_object_converter(bot: commands.Bot, guild: discord.Guild, entr
         if not member:
             try:
                 user = await bot.fetch_user(entry.target.id)
-                username = functions.get_username(user_object=user, escape_markdown=True)
+                username = get_username(user_object=user, escape_markdown=True)
             except discord.NotFound:
                 username = 'Deleted User'
         else:
-            username = functions.get_username(user_object=member, escape_markdown=True)
+            username = get_username(user_object=member, escape_markdown=True)
         return entry, f'**{username}** `{entry.target.id}`'
 
     else:

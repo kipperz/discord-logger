@@ -2,7 +2,7 @@ from typing import Union
 
 import discord
 
-from ext.functions import get_username
+from ext import get_username
 
 
 def create_embed(

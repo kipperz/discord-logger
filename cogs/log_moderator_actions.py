@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord.utils import escape_markdown
 
-from ext import functions
+from ext import get_username, functions
 
 
 class ModeratorActions(commands.Cog):
@@ -29,7 +29,7 @@ class ModeratorActions(commands.Cog):
             target = await self.bot.fetch_user(entry.target.id)
         except:
             pass
-        message = f'kicked {target.mention} `{functions.get_username(target)}`'
+        message = f'kicked {target.mention} `{get_username(target)}`'
         if entry.reason:
             message += f'| Reason: {entry.reason}'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
@@ -40,7 +40,7 @@ class ModeratorActions(commands.Cog):
             return
 
         target = await self.bot.fetch_user(entry.target.id)
-        message = f'banned {target.mention} `{functions.get_username(target)}`'
+        message = f'banned {target.mention} `{get_username(target)}`'
         if entry.reason:
             message += f'| Reason: {entry.reason}'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
@@ -51,7 +51,7 @@ class ModeratorActions(commands.Cog):
             return
 
         target = await self.bot.fetch_user(entry.target.id)
-        message = f'unbanned {target.mention} `{functions.get_username(target)}`'
+        message = f'unbanned {target.mention} `{get_username(target)}`'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
     async def member_update_handler(self, entry: discord.AuditLogEntry):
@@ -75,7 +75,7 @@ class ModeratorActions(commands.Cog):
         if not functions.enabled_check(bot=self.bot, guild_id=entry.guild.id, log_type=log_type):
             return
 
-        member_details = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
+        member_details = f'{entry.target.mention} `{get_username(entry.target)}`'
         if not entry.before.timed_out_until or entry.before.timed_out_until < datetime.now(timezone.utc):
             message = f'timed out {member_details} for {timeout_length()}'
             if entry.reason:
@@ -97,9 +97,9 @@ class ModeratorActions(commands.Cog):
 
         deafen_after = getattr(entry.after, 'deaf', None)
         if deafen_after is True:
-            message = f'deafened {entry.target.mention} `{functions.get_username(entry.target)}`'
+            message = f'deafened {entry.target.mention} `{get_username(entry.target)}`'
         else:
-            message = f'undeafened {entry.target.mention} `{functions.get_username(entry.target)}`'
+            message = f'undeafened {entry.target.mention} `{get_username(entry.target)}`'
 
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
@@ -110,9 +110,9 @@ class ModeratorActions(commands.Cog):
 
         mute_after = getattr(entry.after, 'mute', None)
         if mute_after is True:
-            message = f'muted {entry.target.mention} `{functions.get_username(entry.target)}`'
+            message = f'muted {entry.target.mention} `{get_username(entry.target)}`'
         else:
-            message = f'unmuted {entry.target.mention} `{functions.get_username(entry.target)}`'
+            message = f'unmuted {entry.target.mention} `{get_username(entry.target)}`'
 
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
 
@@ -123,7 +123,7 @@ class ModeratorActions(commands.Cog):
 
         old_nick = getattr(entry.before, 'nick', None)
         new_nick = getattr(entry.after, 'nick', None)
-        target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
+        target = f'{entry.target.mention} `{get_username(entry.target)}`'
 
         messages = {
             (False, True): f'set nickname for {target} to **{escape_markdown(str(new_nick))}**',
@@ -145,12 +145,12 @@ class ModeratorActions(commands.Cog):
         if isinstance(entry.target, discord.object.Object):
             try:
                 target = await self.bot.fetch_user(entry.target.id)
-                username = functions.get_username(target)
+                username = get_username(target)
             except discord.errors.NotFound:
                 username = 'Deleted User'
 
         else:
-            username = functions.get_username(entry.target)
+            username = get_username(entry.target)
 
         message = f'deleted {entry.extra.count} message(s) in **#{entry.extra.channel.name}** `{entry.extra.channel.id}` sent by <@{entry.target.id}> `{username}`'
         await self.log_moderator_action_event(moderator=entry.user, log_type=log_type, message=message)
@@ -184,7 +184,7 @@ class ModeratorActions(commands.Cog):
 
         after_roles = [role.mention for role in entry.after.roles]
         before_roles = [role.mention for role in entry.before.roles]
-        target = f'{entry.target.mention} `{functions.get_username(entry.target)}`'
+        target = f'{entry.target.mention} `{get_username(entry.target)}`'
 
         if after_roles:
             message = f'granted {target} {len(after_roles)} role(s): {", ".join(after_roles)}'
