@@ -65,7 +65,7 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
    python main.py
    ```
 
-4. Use /setup in desired guilds
+4. Use the `sync` command, then `/setup`
 
 ## Support & Contribution
 
