@@ -7,6 +7,7 @@ Discord Logger is an open-source bot designed to meticulously log messages and e
 Discord Logger is in early-development and is brought to you by kipperz, streamer [twitch.tv/kipperzGG](https://twitch.tv/kipperzGG) and owner/developer of [discord.gg/kipperz](https://discord.gg/kipperz).
 
 ## Beta Release
+- **Version 0.9.5**: The secrets.py file is now created on first run and is included in .gitignore. Please remember to keep your token secure. Fixed a check that was excluding message reply logging.
 - **Version 0.9.4**: Created separate files for the DiscordBot and LoggingHandler classes. Updated DiscordBot class setup_hook and on_ready methods. Fixed some typing errors.
 - **Version 0.9.3**: Discord Logger is not yet ready for full deployment. Ahead of our 1.0 release, we're improving message formats and testing thoroughly. To assist in testing, contact kipperz on Discord.
 
