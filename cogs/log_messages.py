@@ -86,6 +86,9 @@ class MessageLog(commands.Cog):
         else:
             before = payload.cached_message.content
 
+        if before == message.content or before == "":
+            return
+
         embed = embeds.message_edit_log_extended(message=message, before=before)
         await self.send_log(guild_id=payload.guild_id, log_type=log_type, embed=embed)
         database.database_insert_message(message)
@@ -115,7 +118,7 @@ class MessageLog(commands.Cog):
         if message.guild is None:
             return
 
-        if message.type != discord.MessageType.default:
+        if message.type not in [discord.MessageType.default, discord.MessageType.reply]:
             return
 
         if not message.channel:
