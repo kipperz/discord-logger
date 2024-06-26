@@ -6,9 +6,27 @@ from discord.ext import commands
 
 from config.settings import DEVELOPER_IDS
 
+
 class DevCommands(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+
+    async def execute_command(self, command: str):
+        proc = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+
+        stdout, stderr = await proc.communicate()
+
+        content = f'**{command!r}** exited with return code: {proc.returncode}'
+        if stdout:
+            content += f'\n**stdout**\n```{stdout.decode()}```'
+        if stderr and not command.startswith('git'):
+            content += f'\n\n**stderr**\n```{stderr.decode()}```'
+
+        return content
 
     @commands.command()
     async def sync(self, ctx: commands.Context, guilds: commands.Greedy[discord.Object], spec: typing.Optional[typing.Literal["~", "*", "^", "x"]] = None) -> None:
@@ -32,9 +50,7 @@ class DevCommands(commands.Cog):
             else:
                 synced = await ctx.bot.tree.sync()
 
-            await ctx.send(
-                f"Synced {len(synced)} commands {'globally' if spec is None else 'to the current guild.'}"
-            )
+            await ctx.send(f'Synced {len(synced)} commands {"globally" if spec is None else "to the current guild."}')
             return
 
         ret = 0
@@ -60,46 +76,24 @@ class DevCommands(commands.Cog):
         # !sync ^ -> clears all commands from the current guild target and syncs (removes guild commands)
         # !sync id_1 id_2 -> syncs guilds with id 1 and 2
 
-    async def execute_command_on_vps(self, command: str):
-        proc = await asyncio.create_subprocess_shell(
-            command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE)
-
-        stdout, stderr = await proc.communicate()
-
-        content = f'**{command!r}** exited with return code: {proc.returncode}'
-        if stdout:
-            content += f'\n**stdout**\n```{stdout.decode()}```'
-        if stderr and not command.startswith('git'):
-            content += f'\n\n**stderr**\n```{stderr.decode()}```'
-
-        return content
-
     @commands.command()
-    async def git(self, ctx: commands.Context, command: str):
+    async def pull(self, ctx: commands.Context):
         if ctx.author.id not in DEVELOPER_IDS:
-            return
-
-        git_commands = ['pull']
-        if command not in git_commands:
-            await ctx.send('Invalid action')
-
-        else:
-            content = await self.execute_command_on_vps(f'git {command}')
+            content = await self.execute_command('git pull')
             await ctx.send(content)
             await ctx.message.delete()
 
     @commands.command()
-    async def systemctl(self, ctx: commands.Context, action: str, service: str):
+    async def restart(self, ctx: commands.Context):
         if ctx.author.id not in DEVELOPER_IDS:
-            return
+            content = await self.execute_command('systemctl restart')
+            await ctx.send(content)
+            await ctx.message.delete()
 
-        actions = ['restart', 'stop', 'kill']
-        if action not in actions:
-            await ctx.send('Invalid action')
-        else:
-            content = await self.execute_command_on_vps(f'systemctl {action} {service}')
+    @commands.command()
+    async def stop(self, ctx: commands.Context):
+        if ctx.author.id not in DEVELOPER_IDS:
+            content = await self.execute_command('systemctl stop')
             await ctx.send(content)
             await ctx.message.delete()
 
