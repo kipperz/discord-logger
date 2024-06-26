@@ -4,7 +4,7 @@ from logging import Logger
 import discord
 from discord.ext import commands
 
-import config
+from config import settings
 from ext.functions import set_guild_invites
 
 
@@ -20,10 +20,10 @@ intents.voice_states = True
 class DiscordBot(commands.Bot):
     def __init__(self, logger: Logger):
         super().__init__(
-            command_prefix = config.settings.COMMAND_PREFIX,
+            command_prefix = settings.COMMAND_PREFIX,
             intents = intents,
             log_hander = logger,
-            application_id = config.settings.APPLICATION_ID,
+            application_id = settings.APPLICATION_ID,
         )
         self.connected = False
         self.synced = False
