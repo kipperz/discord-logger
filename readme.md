@@ -50,7 +50,8 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
 1. Clone and install dependencies
    ```
    git clone https://github.com/kipperz/discord-logger.git
-
+   ```
+   ```
    pip install -r requirements.txt
    ```
 
