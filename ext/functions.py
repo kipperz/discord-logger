@@ -1,3 +1,4 @@
+import os
 import json
 
 import discord
@@ -6,16 +7,30 @@ from discord.ext import commands
 from ext import embeds
 
 
-guild_settings_categories = ['audit_log', 'join_part', 'member_actions', 'message_log', 'moderator_actions', 'voice']
+guild_settings_categories = [ 'audit_log',
+                              'join_part',
+                              'member_actions',
+                              'message_log',
+                              'moderator_actions',
+                              'voice'
+                            ]
+
+GUILD_SETTINGS_PATH = 'config/guild_settings.json'
 
 def get_guild_settings():
-    with open('config/guild_settings.json', 'r', encoding='utf-8') as json_file:
-        guild_settings = json.load(json_file)
+    if not os.path.exists(GUILD_SETTINGS_PATH):
+        guild_settings = {}
+        with open(GUILD_SETTINGS_PATH, 'w', encoding='utf-8') as file_pointer:
+            file_pointer.write(guild_settings)
+
+    else:
+        with open(GUILD_SETTINGS_PATH, 'r', encoding='utf-8') as json_file:
+            guild_settings = json.load(json_file)
 
     return guild_settings
 
 def write_guild_settings(guild_settings):
-    with open('config/guild_settings.json', 'w', encoding='utf-8') as file_pointer:
+    with open(GUILD_SETTINGS_PATH, 'w', encoding='utf-8') as file_pointer:
         json.dump(guild_settings, file_pointer, indent=4)
 
 async def set_guild_invites(bot: commands.Bot, guild: discord.Guild):
