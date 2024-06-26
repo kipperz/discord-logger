@@ -7,8 +7,10 @@ from pymongo import DESCENDING, MongoClient
 from config.secrets import MONGO_URI
 from ext.audit_log import recursive_object_to_dict
 
-
-log_database = MongoClient(MONGO_URI)
+if MONGO_URI:
+    log_database = MongoClient(MONGO_URI)
+else:
+    log_database = None
 
 def database_insert_message(message: discord.Message):
     doc = {
