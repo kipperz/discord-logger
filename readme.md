@@ -47,21 +47,26 @@ Currently, your option for using Discord Logger is to self-host. The bot is desi
 
 ### Installation & Setup
 
-1. Clone this repository:
+1. Clone this repository and install dependencies
    ```
    git clone https://github.com/kipperz/discord-logger.git
+
+   pip install -r requirements.txt
    ```
 
-2. Navigate to the repository directory and install required dependencies.
-
-3. Modify config/settings.py
-
-4. Modify config/guild_settings.json
-
-5. Launch the bot:
+2. First run: create secrets config file
    ```
    python main.py
    ```
+
+4. Configure settings.py secrets.py in the config dir
+
+5. Launch the bot and use /setup in desired guilds:
+   ```
+   python main.py
+   ```
+
+
 
 ## Support & Contribution
 
